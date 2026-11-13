@@ -1,6 +1,8 @@
 import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import request from 'supertest';
 import { AppModule } from '../src/app.module';
+import { createOwner } from '../src/auth/owner';
 import { configureApp } from '../src/configure-app';
 import { PrismaService } from '../src/prisma/prisma.service';
 
@@ -26,7 +28,12 @@ export async function createTestApp(): Promise<INestApplication> {
   return app;
 }
 
+export const OWNER = { email: 'owner@example.test', password: 'correct horse battery' };
+
 /** Creates the owner and returns a Cookie header for a logged-in session. */
-export async function loginAsOwner(_app: INestApplication): Promise<string> {
-  throw new Error('loginAsOwner is implemented with the auth module');
+export async function loginAsOwner(app: INestApplication): Promise<string> {
+  await createOwner(app.get(PrismaService), OWNER.email, OWNER.password);
+  const res = await request(app.getHttpServer()).post('/api/auth/login').send(OWNER);
+  if (res.status !== 204) throw new Error(`Test login failed with ${res.status}`);
+  return String(res.headers['set-cookie']).split(';')[0]!;
 }

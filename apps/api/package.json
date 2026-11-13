@@ -6,6 +6,7 @@
     "build": "tsc -p tsconfig.build.json",
     "dev": "nest start --watch",
     "start": "node dist/main.js",
+    "setup:owner": "node dist/auth/setup-owner.js",
     "lint": "eslint src test",
     "test": "node --experimental-vm-modules --disable-warning=ExperimentalWarning node_modules/jest/bin/jest.js --runInBand",
     "test:e2e": "node --experimental-vm-modules --disable-warning=ExperimentalWarning node_modules/jest/bin/jest.js --runInBand test/"
@@ -16,6 +17,7 @@
     "@nestjs/platform-express": "^11.0.0",
     "@pa/db": "workspace:*",
     "@pa/shared": "workspace:*",
+    "argon2": "^0.45.2",
     "cookie-parser": "^1.4.7",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
