@@ -4,6 +4,7 @@ packages:
 
 allowBuilds:
   esbuild: true
+  "@parcel/watcher": true
   prisma: true
   "@prisma/engines": true
   "@embedded-postgres/windows-x64": true

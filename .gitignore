@@ -10,5 +10,5 @@ coverage
 *.tsbuildinfo
 
 # local Postgres data and generated Prisma client
-.localdb
+.localdb*
 src/generated
