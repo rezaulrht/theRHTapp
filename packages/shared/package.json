@@ -11,8 +11,13 @@
   },
   "devDependencies": {
     "@pa/config": "workspace:*",
+    "@types/luxon": "^3.7.6",
     "eslint": "^9.0.0",
     "typescript": "^5.9.0",
     "vitest": "^3.0.0"
+  },
+  "dependencies": {
+    "luxon": "^3.7.2",
+    "zod": "^4.6.7"
   }
 }
