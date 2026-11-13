@@ -1,5 +1,5 @@
 import type { INestApplication } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
+import { Test, type TestingModuleBuilder } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { createOwner } from '../src/auth/owner';
@@ -17,10 +17,12 @@ export async function resetDb(app: INestApplication): Promise<void> {
 
 /**
  * Builds the whole app against the test database (started by global-setup)
- * with empty tables.
+ * with empty tables. `customize` can swap providers, for example fake senders.
  */
-export async function createTestApp(): Promise<INestApplication> {
-  const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+export async function createTestApp(
+  customize: (builder: TestingModuleBuilder) => TestingModuleBuilder = (b) => b,
+): Promise<INestApplication> {
+  const moduleRef = await customize(Test.createTestingModule({ imports: [AppModule] })).compile();
   const app = moduleRef.createNestApplication();
   configureApp(app);
   await app.init();
