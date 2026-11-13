@@ -8,3 +8,7 @@ dist
 .superpowers/
 coverage
 *.tsbuildinfo
+
+# local Postgres data and generated Prisma client
+.localdb
+src/generated

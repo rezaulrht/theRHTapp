@@ -1,0 +1,38 @@
+{
+  "name": "@pa/db",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./local-db": "./scripts/local-db.mjs"
+  },
+  "scripts": {
+    "generate": "prisma generate",
+    "build": "prisma generate && tsc -p tsconfig.json",
+    "lint": "eslint src",
+    "test": "node -e \"process.exit(0)\"",
+    "migrate:dev": "prisma migrate dev",
+    "migrate:deploy": "prisma migrate deploy",
+    "migrate:dev:local": "node scripts/with-local-db.mjs prisma migrate dev",
+    "local-db": "node scripts/with-local-db.mjs --serve"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "7.10.1",
+    "@prisma/client": "7.10.1",
+    "pg": "^8.13.0"
+  },
+  "devDependencies": {
+    "@pa/config": "workspace:*",
+    "@types/node": "^22.0.0",
+    "@types/pg": "^8.11.0",
+    "embedded-postgres": "18.6.0-beta.19",
+    "eslint": "^9.0.0",
+    "prisma": "7.10.1",
+    "typescript": "^5.9.0"
+  }
+}

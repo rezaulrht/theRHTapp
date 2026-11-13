@@ -1,0 +1,92 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// The single owner of the app. There is never more than one row.
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  passwordHash   String
+  failedAttempts Int       @default(0)
+  lockedUntil    DateTime?
+  createdAt      DateTime  @default(now())
+  sessions       Session[]
+}
+
+model Session {
+  id         String   @id @default(cuid())
+  /// SHA-256 hex of the cookie value; the raw value is never stored.
+  tokenHash  String   @unique
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt  DateTime
+  lastUsedAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+}
+
+/// One row per setting the owner has changed. Unchanged settings use the
+/// defaults in @pa/shared.
+model Setting {
+  key       String   @id
+  value     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userAgent String?
+  createdAt DateTime @default(now())
+}
+
+model Reminder {
+  id               String             @id @default(cuid())
+  /// Which section owns it: system, money, habit or vault.
+  ownerType        String
+  ownerId          String?
+  title            String
+  body             String
+  /// Path opened when the notification is tapped.
+  url              String
+  /// A Schedule from @pa/shared.
+  schedule         Json
+  channels         String[]
+  ignoreQuietHours Boolean            @default(false)
+  enabled          Boolean            @default(true)
+  /// Next instant this reminder is due; null when it will not fire again.
+  nextFireAt       DateTime?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  deliveries       ReminderDelivery[]
+
+  @@index([enabled, nextFireAt])
+  @@index([ownerType, ownerId])
+}
+
+/// One row per occurrence per channel. The unique key is what stops an
+/// occurrence being sent twice.
+model ReminderDelivery {
+  id           String   @id @default(cuid())
+  reminderId   String
+  reminder     Reminder @relation(fields: [reminderId], references: [id], onDelete: Cascade)
+  occurrenceAt DateTime
+  channel      String
+  /// sent, failed, missed or suppressed
+  status       String
+  error        String?
+  createdAt    DateTime @default(now())
+
+  @@unique([reminderId, occurrenceAt, channel])
+  @@index([createdAt])
+}
