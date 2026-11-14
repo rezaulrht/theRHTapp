@@ -4,13 +4,14 @@ import { EnvModule } from './env';
 import { ExportModule } from './export/export.module';
 import { FallbackModule } from './fallback.controller';
 import { HealthController } from './health/health.controller';
+import { MoneyModule } from './money/money.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RemindersModule } from './reminders/reminders.module';
 import { SettingsModule } from './settings/settings.module';
 
 @Module({
   // FallbackModule must stay last: it answers every path nothing else matched.
-  imports: [EnvModule, PrismaModule, AuthModule, SettingsModule, RemindersModule, ExportModule, FallbackModule],
+  imports: [EnvModule, PrismaModule, AuthModule, SettingsModule, RemindersModule, ExportModule, MoneyModule, FallbackModule],
   controllers: [HealthController],
 })
 export class AppModule {}

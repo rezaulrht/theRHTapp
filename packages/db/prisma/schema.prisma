@@ -90,3 +90,118 @@ model ReminderDelivery {
   @@unique([reminderId, occurrenceAt, channel])
   @@index([createdAt])
 }
+
+// ---------------------------------------------------------------------------
+// Money. Amounts are whole paisa. Balances are never stored: an account's
+// balance is its opening balance plus the deltas of every entry touching it.
+// ---------------------------------------------------------------------------
+
+/// Where money sits: a bank account, bKash, cash.
+model MoneyAccount {
+  id             String    @id @default(cuid())
+  name           String
+  openingBalance Int
+  openingDate    DateTime  @db.Date
+  sortOrder      Int       @default(0)
+  /// Set when hidden from pickers. History is kept.
+  archivedAt     DateTime?
+  createdAt      DateTime  @default(now())
+
+  entries     MoneyEntry[]    @relation("EntryAccount")
+  entriesInto MoneyEntry[]    @relation("EntryToAccount")
+  shortcuts   MoneyShortcut[]
+}
+
+model MoneyCategory {
+  id         String    @id @default(cuid())
+  name       String
+  /// A key of CATEGORY_COLORS in @pa/shared.
+  color      String
+  /// One of CATEGORY_ICONS in @pa/shared.
+  icon       String
+  sortOrder  Int       @default(0)
+  /// The category transfer fees are filed under. Exactly one row has this.
+  isFees     Boolean   @default(false)
+  archivedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  entries   MoneyEntry[]
+  shortcuts MoneyShortcut[]
+  budget    MoneyBudget?
+}
+
+/// Someone the owner lends to or borrows from.
+model MoneyPerson {
+  id         String    @id @default(cuid())
+  name       String
+  archivedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  entries MoneyEntry[]
+}
+
+model MoneyEntry {
+  id   String   @id @default(cuid())
+  /// expense, income, transfer, correction or loan
+  kind String
+  /// The calendar day it belongs to, in the owner's time zone.
+  date DateTime @db.Date
+  /// Always positive.
+  amount Int
+  name   String
+  note   String?
+
+  accountId    String
+  account      MoneyAccount @relation("EntryAccount", fields: [accountId], references: [id])
+  /// Signed effect on `account`.
+  accountDelta Int
+
+  /// The receiving account of a transfer.
+  toAccountId    String?
+  toAccount      MoneyAccount? @relation("EntryToAccount", fields: [toAccountId], references: [id])
+  toAccountDelta Int?
+
+  categoryId String?
+  category   MoneyCategory? @relation(fields: [categoryId], references: [id])
+
+  personId      String?
+  person        MoneyPerson? @relation(fields: [personId], references: [id])
+  /// lent, borrowed, repaid_to_me or repaid_by_me
+  loanDirection String?
+
+  /// Set on a fee: the transfer it belongs to. Deleting the transfer deletes the fee.
+  feeOfId String?     @unique
+  feeOf   MoneyEntry? @relation("EntryFee", fields: [feeOfId], references: [id], onDelete: Cascade)
+  fee     MoneyEntry? @relation("EntryFee")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([date])
+  @@index([accountId])
+  @@index([toAccountId])
+  @@index([categoryId])
+  @@index([personId])
+}
+
+/// A saved expense recorded with one tap, such as "Office rickshaw, 80, Cash".
+model MoneyShortcut {
+  id         String        @id @default(cuid())
+  name       String
+  amount     Int
+  accountId  String
+  account    MoneyAccount  @relation(fields: [accountId], references: [id])
+  categoryId String
+  category   MoneyCategory @relation(fields: [categoryId], references: [id])
+  sortOrder  Int           @default(0)
+  createdAt  DateTime      @default(now())
+}
+
+/// A monthly spending limit. The row with no category is the whole-month budget.
+model MoneyBudget {
+  id         String         @id @default(cuid())
+  categoryId String?        @unique
+  category   MoneyCategory? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  amount     Int
+  createdAt  DateTime       @default(now())
+}

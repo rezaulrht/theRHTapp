@@ -49,3 +49,33 @@ export type Reminder = Prisma.ReminderModel
  * occurrence being sent twice.
  */
 export type ReminderDelivery = Prisma.ReminderDeliveryModel
+/**
+ * Model MoneyAccount
+ * Where money sits: a bank account, bKash, cash.
+ */
+export type MoneyAccount = Prisma.MoneyAccountModel
+/**
+ * Model MoneyCategory
+ * 
+ */
+export type MoneyCategory = Prisma.MoneyCategoryModel
+/**
+ * Model MoneyPerson
+ * Someone the owner lends to or borrows from.
+ */
+export type MoneyPerson = Prisma.MoneyPersonModel
+/**
+ * Model MoneyEntry
+ * 
+ */
+export type MoneyEntry = Prisma.MoneyEntryModel
+/**
+ * Model MoneyShortcut
+ * A saved expense recorded with one tap, such as "Office rickshaw, 80, Cash".
+ */
+export type MoneyShortcut = Prisma.MoneyShortcutModel
+/**
+ * Model MoneyBudget
+ * A monthly spending limit. The row with no category is the whole-month budget.
+ */
+export type MoneyBudget = Prisma.MoneyBudgetModel

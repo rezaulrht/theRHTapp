@@ -47,6 +47,28 @@ function stopServerFor(dataDir) {
 }
 
 /**
+ * On Windows, when a server's parent process is killed outright (a terminal
+ * closed, a tool stopping it), its worker processes can live on, holding the
+ * port and shared memory so no new server can start. They are recognisable as
+ * embedded-postgres workers whose parent no longer exists. A running server's
+ * workers always have a live parent, so this never touches one.
+ */
+function stopOrphanedWorkers() {
+  if (process.platform !== 'win32') return;
+  const script = [
+    "$all = Get-CimInstance Win32_Process -Filter \"name='postgres.exe'\"",
+    '$alive = @{}; Get-Process | ForEach-Object { $alive[[int]$_.Id] = $true }',
+    "$all | Where-Object { ([string]$_.CommandLine) -like '*embedded-postgres*' -and -not $alive.ContainsKey([int]$_.ParentProcessId) }" +
+      ' | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }',
+  ].join('; ');
+  try {
+    execFileSync('powershell', ['-NoProfile', '-NonInteractive', '-Command', script], { stdio: 'ignore' });
+  } catch {
+    // Best effort: if this fails, the start below reports the real problem.
+  }
+}
+
+/**
  * Starts the server, creating its data folder and the named databases on
  * first use.
  * @param {{ port?: number, dataDir?: string, databases?: string[] }} [options]
@@ -69,8 +91,9 @@ export async function startLocalDb(options = {}) {
   });
 
   if (!existsSync(path.join(dataDir, 'PG_VERSION'))) await server.initialise();
-  // A run that was killed can leave its server behind.
+  // A run that was killed can leave its server, or just its workers, behind.
   stopServerFor(dataDir);
+  stopOrphanedWorkers();
   try {
     await server.start();
   } catch (error) {

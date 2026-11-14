@@ -6,7 +6,20 @@ import { createOwner } from '../src/auth/owner';
 import { configureApp } from '../src/configure-app';
 import { PrismaService } from '../src/prisma/prisma.service';
 
-const TABLES = ['ReminderDelivery', 'Reminder', 'PushSubscription', 'Setting', 'Session', 'User'];
+const TABLES = [
+  'MoneyBudget',
+  'MoneyShortcut',
+  'MoneyEntry',
+  'MoneyPerson',
+  'MoneyCategory',
+  'MoneyAccount',
+  'ReminderDelivery',
+  'Reminder',
+  'PushSubscription',
+  'Setting',
+  'Session',
+  'User',
+];
 
 /** Empties every table. Call before each test that touches the database. */
 export async function resetDb(app: INestApplication): Promise<void> {

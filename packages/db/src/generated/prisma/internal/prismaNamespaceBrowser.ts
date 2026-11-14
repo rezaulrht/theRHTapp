@@ -56,7 +56,13 @@ export const ModelName = {
   Setting: 'Setting',
   PushSubscription: 'PushSubscription',
   Reminder: 'Reminder',
-  ReminderDelivery: 'ReminderDelivery'
+  ReminderDelivery: 'ReminderDelivery',
+  MoneyAccount: 'MoneyAccount',
+  MoneyCategory: 'MoneyCategory',
+  MoneyPerson: 'MoneyPerson',
+  MoneyEntry: 'MoneyEntry',
+  MoneyShortcut: 'MoneyShortcut',
+  MoneyBudget: 'MoneyBudget'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -151,6 +157,88 @@ export const ReminderDeliveryScalarFieldEnum = {
 } as const
 
 export type ReminderDeliveryScalarFieldEnum = (typeof ReminderDeliveryScalarFieldEnum)[keyof typeof ReminderDeliveryScalarFieldEnum]
+
+
+export const MoneyAccountScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  openingBalance: 'openingBalance',
+  openingDate: 'openingDate',
+  sortOrder: 'sortOrder',
+  archivedAt: 'archivedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type MoneyAccountScalarFieldEnum = (typeof MoneyAccountScalarFieldEnum)[keyof typeof MoneyAccountScalarFieldEnum]
+
+
+export const MoneyCategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  color: 'color',
+  icon: 'icon',
+  sortOrder: 'sortOrder',
+  isFees: 'isFees',
+  archivedAt: 'archivedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type MoneyCategoryScalarFieldEnum = (typeof MoneyCategoryScalarFieldEnum)[keyof typeof MoneyCategoryScalarFieldEnum]
+
+
+export const MoneyPersonScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  archivedAt: 'archivedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type MoneyPersonScalarFieldEnum = (typeof MoneyPersonScalarFieldEnum)[keyof typeof MoneyPersonScalarFieldEnum]
+
+
+export const MoneyEntryScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  date: 'date',
+  amount: 'amount',
+  name: 'name',
+  note: 'note',
+  accountId: 'accountId',
+  accountDelta: 'accountDelta',
+  toAccountId: 'toAccountId',
+  toAccountDelta: 'toAccountDelta',
+  categoryId: 'categoryId',
+  personId: 'personId',
+  loanDirection: 'loanDirection',
+  feeOfId: 'feeOfId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MoneyEntryScalarFieldEnum = (typeof MoneyEntryScalarFieldEnum)[keyof typeof MoneyEntryScalarFieldEnum]
+
+
+export const MoneyShortcutScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  amount: 'amount',
+  accountId: 'accountId',
+  categoryId: 'categoryId',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt'
+} as const
+
+export type MoneyShortcutScalarFieldEnum = (typeof MoneyShortcutScalarFieldEnum)[keyof typeof MoneyShortcutScalarFieldEnum]
+
+
+export const MoneyBudgetScalarFieldEnum = {
+  id: 'id',
+  categoryId: 'categoryId',
+  amount: 'amount',
+  createdAt: 'createdAt'
+} as const
+
+export type MoneyBudgetScalarFieldEnum = (typeof MoneyBudgetScalarFieldEnum)[keyof typeof MoneyBudgetScalarFieldEnum]
 
 
 export const SortOrder = {

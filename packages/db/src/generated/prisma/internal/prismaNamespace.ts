@@ -402,7 +402,13 @@ export const ModelName = {
   Setting: 'Setting',
   PushSubscription: 'PushSubscription',
   Reminder: 'Reminder',
-  ReminderDelivery: 'ReminderDelivery'
+  ReminderDelivery: 'ReminderDelivery',
+  MoneyAccount: 'MoneyAccount',
+  MoneyCategory: 'MoneyCategory',
+  MoneyPerson: 'MoneyPerson',
+  MoneyEntry: 'MoneyEntry',
+  MoneyShortcut: 'MoneyShortcut',
+  MoneyBudget: 'MoneyBudget'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -418,7 +424,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "setting" | "pushSubscription" | "reminder" | "reminderDelivery"
+    modelProps: "user" | "session" | "setting" | "pushSubscription" | "reminder" | "reminderDelivery" | "moneyAccount" | "moneyCategory" | "moneyPerson" | "moneyEntry" | "moneyShortcut" | "moneyBudget"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -866,6 +872,450 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    MoneyAccount: {
+      payload: Prisma.$MoneyAccountPayload<ExtArgs>
+      fields: Prisma.MoneyAccountFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MoneyAccountFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyAccountPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MoneyAccountFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyAccountPayload>
+        }
+        findFirst: {
+          args: Prisma.MoneyAccountFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyAccountPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MoneyAccountFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyAccountPayload>
+        }
+        findMany: {
+          args: Prisma.MoneyAccountFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyAccountPayload>[]
+        }
+        create: {
+          args: Prisma.MoneyAccountCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyAccountPayload>
+        }
+        createMany: {
+          args: Prisma.MoneyAccountCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MoneyAccountCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyAccountPayload>[]
+        }
+        delete: {
+          args: Prisma.MoneyAccountDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyAccountPayload>
+        }
+        update: {
+          args: Prisma.MoneyAccountUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyAccountPayload>
+        }
+        deleteMany: {
+          args: Prisma.MoneyAccountDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MoneyAccountUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MoneyAccountUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyAccountPayload>[]
+        }
+        upsert: {
+          args: Prisma.MoneyAccountUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyAccountPayload>
+        }
+        aggregate: {
+          args: Prisma.MoneyAccountAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMoneyAccount>
+        }
+        groupBy: {
+          args: Prisma.MoneyAccountGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MoneyAccountGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MoneyAccountCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MoneyAccountCountAggregateOutputType> | number
+        }
+      }
+    }
+    MoneyCategory: {
+      payload: Prisma.$MoneyCategoryPayload<ExtArgs>
+      fields: Prisma.MoneyCategoryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MoneyCategoryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyCategoryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MoneyCategoryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyCategoryPayload>
+        }
+        findFirst: {
+          args: Prisma.MoneyCategoryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyCategoryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MoneyCategoryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyCategoryPayload>
+        }
+        findMany: {
+          args: Prisma.MoneyCategoryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyCategoryPayload>[]
+        }
+        create: {
+          args: Prisma.MoneyCategoryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyCategoryPayload>
+        }
+        createMany: {
+          args: Prisma.MoneyCategoryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MoneyCategoryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyCategoryPayload>[]
+        }
+        delete: {
+          args: Prisma.MoneyCategoryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyCategoryPayload>
+        }
+        update: {
+          args: Prisma.MoneyCategoryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyCategoryPayload>
+        }
+        deleteMany: {
+          args: Prisma.MoneyCategoryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MoneyCategoryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MoneyCategoryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyCategoryPayload>[]
+        }
+        upsert: {
+          args: Prisma.MoneyCategoryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyCategoryPayload>
+        }
+        aggregate: {
+          args: Prisma.MoneyCategoryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMoneyCategory>
+        }
+        groupBy: {
+          args: Prisma.MoneyCategoryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MoneyCategoryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MoneyCategoryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MoneyCategoryCountAggregateOutputType> | number
+        }
+      }
+    }
+    MoneyPerson: {
+      payload: Prisma.$MoneyPersonPayload<ExtArgs>
+      fields: Prisma.MoneyPersonFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MoneyPersonFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyPersonPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MoneyPersonFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyPersonPayload>
+        }
+        findFirst: {
+          args: Prisma.MoneyPersonFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyPersonPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MoneyPersonFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyPersonPayload>
+        }
+        findMany: {
+          args: Prisma.MoneyPersonFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyPersonPayload>[]
+        }
+        create: {
+          args: Prisma.MoneyPersonCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyPersonPayload>
+        }
+        createMany: {
+          args: Prisma.MoneyPersonCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MoneyPersonCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyPersonPayload>[]
+        }
+        delete: {
+          args: Prisma.MoneyPersonDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyPersonPayload>
+        }
+        update: {
+          args: Prisma.MoneyPersonUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyPersonPayload>
+        }
+        deleteMany: {
+          args: Prisma.MoneyPersonDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MoneyPersonUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MoneyPersonUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyPersonPayload>[]
+        }
+        upsert: {
+          args: Prisma.MoneyPersonUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyPersonPayload>
+        }
+        aggregate: {
+          args: Prisma.MoneyPersonAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMoneyPerson>
+        }
+        groupBy: {
+          args: Prisma.MoneyPersonGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MoneyPersonGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MoneyPersonCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MoneyPersonCountAggregateOutputType> | number
+        }
+      }
+    }
+    MoneyEntry: {
+      payload: Prisma.$MoneyEntryPayload<ExtArgs>
+      fields: Prisma.MoneyEntryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MoneyEntryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyEntryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MoneyEntryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyEntryPayload>
+        }
+        findFirst: {
+          args: Prisma.MoneyEntryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyEntryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MoneyEntryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyEntryPayload>
+        }
+        findMany: {
+          args: Prisma.MoneyEntryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyEntryPayload>[]
+        }
+        create: {
+          args: Prisma.MoneyEntryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyEntryPayload>
+        }
+        createMany: {
+          args: Prisma.MoneyEntryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MoneyEntryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyEntryPayload>[]
+        }
+        delete: {
+          args: Prisma.MoneyEntryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyEntryPayload>
+        }
+        update: {
+          args: Prisma.MoneyEntryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyEntryPayload>
+        }
+        deleteMany: {
+          args: Prisma.MoneyEntryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MoneyEntryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MoneyEntryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyEntryPayload>[]
+        }
+        upsert: {
+          args: Prisma.MoneyEntryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyEntryPayload>
+        }
+        aggregate: {
+          args: Prisma.MoneyEntryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMoneyEntry>
+        }
+        groupBy: {
+          args: Prisma.MoneyEntryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MoneyEntryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MoneyEntryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MoneyEntryCountAggregateOutputType> | number
+        }
+      }
+    }
+    MoneyShortcut: {
+      payload: Prisma.$MoneyShortcutPayload<ExtArgs>
+      fields: Prisma.MoneyShortcutFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MoneyShortcutFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyShortcutPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MoneyShortcutFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyShortcutPayload>
+        }
+        findFirst: {
+          args: Prisma.MoneyShortcutFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyShortcutPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MoneyShortcutFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyShortcutPayload>
+        }
+        findMany: {
+          args: Prisma.MoneyShortcutFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyShortcutPayload>[]
+        }
+        create: {
+          args: Prisma.MoneyShortcutCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyShortcutPayload>
+        }
+        createMany: {
+          args: Prisma.MoneyShortcutCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MoneyShortcutCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyShortcutPayload>[]
+        }
+        delete: {
+          args: Prisma.MoneyShortcutDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyShortcutPayload>
+        }
+        update: {
+          args: Prisma.MoneyShortcutUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyShortcutPayload>
+        }
+        deleteMany: {
+          args: Prisma.MoneyShortcutDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MoneyShortcutUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MoneyShortcutUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyShortcutPayload>[]
+        }
+        upsert: {
+          args: Prisma.MoneyShortcutUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyShortcutPayload>
+        }
+        aggregate: {
+          args: Prisma.MoneyShortcutAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMoneyShortcut>
+        }
+        groupBy: {
+          args: Prisma.MoneyShortcutGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MoneyShortcutGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MoneyShortcutCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MoneyShortcutCountAggregateOutputType> | number
+        }
+      }
+    }
+    MoneyBudget: {
+      payload: Prisma.$MoneyBudgetPayload<ExtArgs>
+      fields: Prisma.MoneyBudgetFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MoneyBudgetFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyBudgetPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MoneyBudgetFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyBudgetPayload>
+        }
+        findFirst: {
+          args: Prisma.MoneyBudgetFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyBudgetPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MoneyBudgetFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyBudgetPayload>
+        }
+        findMany: {
+          args: Prisma.MoneyBudgetFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyBudgetPayload>[]
+        }
+        create: {
+          args: Prisma.MoneyBudgetCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyBudgetPayload>
+        }
+        createMany: {
+          args: Prisma.MoneyBudgetCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MoneyBudgetCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyBudgetPayload>[]
+        }
+        delete: {
+          args: Prisma.MoneyBudgetDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyBudgetPayload>
+        }
+        update: {
+          args: Prisma.MoneyBudgetUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyBudgetPayload>
+        }
+        deleteMany: {
+          args: Prisma.MoneyBudgetDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MoneyBudgetUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MoneyBudgetUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyBudgetPayload>[]
+        }
+        upsert: {
+          args: Prisma.MoneyBudgetUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoneyBudgetPayload>
+        }
+        aggregate: {
+          args: Prisma.MoneyBudgetAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMoneyBudget>
+        }
+        groupBy: {
+          args: Prisma.MoneyBudgetGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MoneyBudgetGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MoneyBudgetCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MoneyBudgetCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -981,6 +1431,88 @@ export const ReminderDeliveryScalarFieldEnum = {
 } as const
 
 export type ReminderDeliveryScalarFieldEnum = (typeof ReminderDeliveryScalarFieldEnum)[keyof typeof ReminderDeliveryScalarFieldEnum]
+
+
+export const MoneyAccountScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  openingBalance: 'openingBalance',
+  openingDate: 'openingDate',
+  sortOrder: 'sortOrder',
+  archivedAt: 'archivedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type MoneyAccountScalarFieldEnum = (typeof MoneyAccountScalarFieldEnum)[keyof typeof MoneyAccountScalarFieldEnum]
+
+
+export const MoneyCategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  color: 'color',
+  icon: 'icon',
+  sortOrder: 'sortOrder',
+  isFees: 'isFees',
+  archivedAt: 'archivedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type MoneyCategoryScalarFieldEnum = (typeof MoneyCategoryScalarFieldEnum)[keyof typeof MoneyCategoryScalarFieldEnum]
+
+
+export const MoneyPersonScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  archivedAt: 'archivedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type MoneyPersonScalarFieldEnum = (typeof MoneyPersonScalarFieldEnum)[keyof typeof MoneyPersonScalarFieldEnum]
+
+
+export const MoneyEntryScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  date: 'date',
+  amount: 'amount',
+  name: 'name',
+  note: 'note',
+  accountId: 'accountId',
+  accountDelta: 'accountDelta',
+  toAccountId: 'toAccountId',
+  toAccountDelta: 'toAccountDelta',
+  categoryId: 'categoryId',
+  personId: 'personId',
+  loanDirection: 'loanDirection',
+  feeOfId: 'feeOfId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MoneyEntryScalarFieldEnum = (typeof MoneyEntryScalarFieldEnum)[keyof typeof MoneyEntryScalarFieldEnum]
+
+
+export const MoneyShortcutScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  amount: 'amount',
+  accountId: 'accountId',
+  categoryId: 'categoryId',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt'
+} as const
+
+export type MoneyShortcutScalarFieldEnum = (typeof MoneyShortcutScalarFieldEnum)[keyof typeof MoneyShortcutScalarFieldEnum]
+
+
+export const MoneyBudgetScalarFieldEnum = {
+  id: 'id',
+  categoryId: 'categoryId',
+  amount: 'amount',
+  createdAt: 'createdAt'
+} as const
+
+export type MoneyBudgetScalarFieldEnum = (typeof MoneyBudgetScalarFieldEnum)[keyof typeof MoneyBudgetScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1262,6 +1794,12 @@ export type GlobalOmitConfig = {
   pushSubscription?: Prisma.PushSubscriptionOmit
   reminder?: Prisma.ReminderOmit
   reminderDelivery?: Prisma.ReminderDeliveryOmit
+  moneyAccount?: Prisma.MoneyAccountOmit
+  moneyCategory?: Prisma.MoneyCategoryOmit
+  moneyPerson?: Prisma.MoneyPersonOmit
+  moneyEntry?: Prisma.MoneyEntryOmit
+  moneyShortcut?: Prisma.MoneyShortcutOmit
+  moneyBudget?: Prisma.MoneyBudgetOmit
 }
 
 /* Types for Logging */
