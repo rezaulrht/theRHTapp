@@ -51,3 +51,8 @@ export function useSettings(): SettingsState {
   if (!state) throw new Error('useSettings must be used inside SettingsProvider');
   return state;
 }
+
+/** Like `useSettings`, but returns null outside the provider instead of throwing. */
+export function useOptionalSettings(): SettingsState | null {
+  return useContext(SettingsContext);
+}

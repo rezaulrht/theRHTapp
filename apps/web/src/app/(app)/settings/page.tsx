@@ -1,8 +1,6 @@
-import type { Metadata } from 'next';
-import { NotBuiltYet } from '@/components/NotBuiltYet';
+import { redirect } from 'next/navigation';
+import { settingsSections } from './sections';
 
-export const metadata: Metadata = { title: 'Settings' };
-
-export default function SettingsPage() {
-  return <NotBuiltYet title="Settings">Settings are being built.</NotBuiltYet>;
+export default function SettingsIndexPage(): never {
+  redirect(settingsSections[0]!.href);
 }
