@@ -1,0 +1,65 @@
+/*
+ * Design tokens: "bottle green and brass".
+ * Import after `@import "tailwindcss"`. Tailwind reads the @theme block and
+ * generates utilities from it (bg-ground, text-brass, font-display, …).
+ */
+@theme {
+  --color-ground: #0e2620;
+  --color-panel: #143229;
+  --color-ivory: #f1ebdd;
+  --color-sage: #9fb3a8;
+  --color-brass: #c8a662;
+  --color-alert: #e8795f;
+  /* Brass at one-third strength, for dividers and quiet borders. */
+  --color-hairline: color-mix(in srgb, #c8a662 33%, transparent);
+
+  /* The font variables are set by the app (next/font); the names after them are fallbacks. */
+  --font-display: var(--font-bodoni), 'Bodoni Moda', 'Didot', 'Bodoni MT', serif;
+  --font-sans: var(--font-hanken), 'Hanken Grotesk', system-ui, sans-serif;
+
+  --radius-control: 0.75rem;
+  --radius-panel: 1.25rem;
+
+  /* Type scale, ratio 1.25 from a 16px base. */
+  --text-xs: 0.8rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.563rem;
+  --text-2xl: 1.953rem;
+  --text-3xl: 2.441rem;
+  --text-4xl: 3.815rem;
+  --text-5xl: 5.25rem;
+}
+
+:root {
+  --ground: var(--color-ground);
+  --panel: var(--color-panel);
+  --ivory: var(--color-ivory);
+  --sage: var(--color-sage);
+  --brass: var(--color-brass);
+  --alert: var(--color-alert);
+  --hairline: var(--color-hairline);
+  color-scheme: dark;
+}
+
+@layer base {
+  html {
+    background: var(--color-ground);
+    color: var(--color-ivory);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* One focus style everywhere: a brass ring that stands clear of the control. */
+  :focus-visible {
+    outline: 2px solid var(--color-brass);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: var(--color-brass);
+    color: var(--color-ground);
+  }
+}

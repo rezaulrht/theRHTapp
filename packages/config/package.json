@@ -4,7 +4,8 @@
   "private": true,
   "exports": {
     "./tsconfig.base.json": "./tsconfig.base.json",
-    "./eslint": "./eslint.config.mjs"
+    "./eslint": "./eslint.config.mjs",
+    "./eslint-browser": "./eslint.browser.mjs"
   },
   "dependencies": {
     "@eslint/js": "^9.0.0",
