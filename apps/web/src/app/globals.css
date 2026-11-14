@@ -1,0 +1,27 @@
+@import 'tailwindcss';
+@import '@pa/ui/tokens.css';
+
+/* Tailwind does not look inside workspace packages unless told to. */
+@source '../../../../packages/ui/src';
+
+@layer base {
+  body {
+    min-height: 100dvh;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
