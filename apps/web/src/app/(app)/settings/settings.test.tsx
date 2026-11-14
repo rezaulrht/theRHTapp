@@ -5,7 +5,7 @@ import type { ReactNode } from 'react';
 import { SettingsProvider } from '@/components/SettingsProvider';
 import { GeneralForm } from './general/GeneralForm';
 import { NotificationsForm } from './notifications/NotificationsForm';
-import { TestReminder } from './notifications/TestReminder';
+import { outcomeText, TestReminder } from './notifications/TestReminder';
 import { SecurityForm } from './security/SecurityForm';
 
 vi.mock('next/navigation', () => ({
@@ -252,5 +252,17 @@ describe('SecurityForm', () => {
     render(<SecurityForm />);
     await userEvent.click(screen.getByRole('button', { name: 'Log out' }));
     await waitFor(() => expect(calls.map((call) => call.key)).toContain('POST /api/auth/logout'));
+  });
+});
+
+describe('outcomeText', () => {
+  it.each([
+    ['sent', null, 'Sent'],
+    ['failed', 'No device is subscribed', 'Not sent. No device is subscribed'],
+    ['missed', null, 'Missed while the server was down'],
+    ['suppressed', null, 'Held back by quiet hours'],
+    ['skipped', null, 'Not needed'],
+  ])('%s reads as plain words', (status, error, text) => {
+    expect(outcomeText({ channel: 'push', status, error })).toBe(text);
   });
 });

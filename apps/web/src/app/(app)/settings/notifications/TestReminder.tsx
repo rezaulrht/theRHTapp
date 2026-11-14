@@ -35,6 +35,9 @@ export function outcomeText(delivery: DeliveryResult): string {
       return 'Missed while the server was down';
     case 'suppressed':
       return 'Held back by quiet hours';
+    case 'skipped':
+      // For example the daily spending nudge on a day that already has entries.
+      return 'Not needed';
     default:
       return delivery.status;
   }

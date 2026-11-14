@@ -19,8 +19,17 @@ export class ExportService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly settings: SettingsService,
-    @Inject(EXPORT_CONTRIBUTORS) private readonly contributors: ExportContributor[],
-  ) {}
+    @Inject(EXPORT_CONTRIBUTORS) initial: ExportContributor[],
+  ) {
+    this.contributors = [...initial];
+  }
+
+  private readonly contributors: ExportContributor[];
+
+  /** Adds a section's data to the download. Called by that section's module at startup. */
+  register(contributor: ExportContributor): void {
+    this.contributors.push(contributor);
+  }
 
   /** Everything the owner has entered. Never includes login or device secrets. */
   async build(now = new Date()): Promise<Record<string, unknown>> {

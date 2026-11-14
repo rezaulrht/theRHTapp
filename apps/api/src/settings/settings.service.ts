@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { isDeepStrictEqual } from 'node:util';
 import type { Prisma } from '@pa/db';
 import { defaultSettings, parseSettingsPatch, settingsSchema, type Settings } from '@pa/shared';
@@ -8,7 +8,15 @@ const KNOWN_KEYS = new Set(Object.keys(defaultSettings));
 
 @Injectable()
 export class SettingsService {
+  private readonly logger = new Logger(SettingsService.name);
+  private readonly listeners: ((changedKeys: string[]) => void | Promise<void>)[] = [];
+
   constructor(private readonly prisma: PrismaService) {}
+
+  /** Runs `listener` after settings are saved, with the keys that changed. */
+  onChange(listener: (changedKeys: string[]) => void | Promise<void>): void {
+    this.listeners.push(listener);
+  }
 
   /** Every setting: what the owner has saved, laid over the defaults. */
   async getAll(): Promise<Settings> {
@@ -52,6 +60,16 @@ export class SettingsService {
         });
       }),
     );
+    if (changed.length > 0) {
+      for (const listener of this.listeners) {
+        try {
+          await listener(changed);
+        } catch (error) {
+          // The settings are saved; a follow-up that fails must not report otherwise.
+          this.logger.error(`Settings follow-up failed: ${String(error)}`);
+        }
+      }
+    }
     return next;
   }
 }

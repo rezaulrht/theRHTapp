@@ -10,6 +10,9 @@ import { CategoriesService } from './categories.service';
 import { EntriesController } from './entries.controller';
 import { EntriesService } from './entries.service';
 import { LoansController, LoansService } from './loans';
+import { MoneyExportController, MoneyExportService } from './money-export';
+import { MoneyRemindersService } from './money-reminders.service';
+import { ReportsController, ReportsService } from './reports';
 import { ensureMoneySeed } from './seed';
 import { ShortcutsController, ShortcutsService } from './shortcuts';
 
@@ -21,8 +24,20 @@ import { ShortcutsController, ShortcutsService } from './shortcuts';
     ShortcutsController,
     BudgetsController,
     LoansController,
+    ReportsController,
+    MoneyExportController,
   ],
-  providers: [AccountsService, CategoriesService, EntriesService, ShortcutsService, BudgetsService, LoansService],
+  providers: [
+    AccountsService,
+    CategoriesService,
+    EntriesService,
+    ShortcutsService,
+    BudgetsService,
+    LoansService,
+    ReportsService,
+    MoneyRemindersService,
+    MoneyExportService,
+  ],
   exports: [AccountsService, CategoriesService, EntriesService, BudgetsService, LoansService],
 })
 export class MoneyModule implements OnModuleInit {

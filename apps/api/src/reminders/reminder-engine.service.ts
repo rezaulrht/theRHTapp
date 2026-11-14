@@ -13,6 +13,7 @@ import { z } from 'zod';
 import { PrismaService } from '../prisma/prisma.service';
 import { SettingsService } from '../settings/settings.service';
 import { CHANNEL_SENDERS, type ChannelSender } from './channel-sender';
+import type { ReminderGate } from './reminder-gate';
 
 /** An occurrence older than this when the engine gets to it is not sent. */
 export const MISSED_AFTER_MS = 30 * 60_000;
@@ -74,12 +75,33 @@ function isUniqueViolation(error: unknown): boolean {
 @Injectable()
 export class ReminderEngineService {
   private readonly logger = new Logger(ReminderEngineService.name);
+  private readonly gates: ReminderGate[] = [];
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly settings: SettingsService,
     @Inject(CHANNEL_SENDERS) private readonly senders: ChannelSender[],
   ) {}
+
+  /**
+   * Lets a section decide, at the moment of sending, that one of its reminders
+   * is no longer needed. Such an occurrence is recorded as `skipped`.
+   */
+  registerGate(gate: ReminderGate): void {
+    this.gates.push(gate);
+  }
+
+  private async wanted(reminder: Reminder, occurrenceAt: Date): Promise<boolean> {
+    const gate = this.gates.find((candidate) => candidate.ownerType === reminder.ownerType);
+    if (!gate) return true;
+    try {
+      return await gate.shouldSend(reminder, occurrenceAt);
+    } catch (error) {
+      // If the check itself breaks, sending is the safer mistake.
+      this.logger.error(`Reminder gate for ${reminder.ownerType} failed: ${String(error)}`);
+      return true;
+    }
+  }
 
   async create(input: ReminderInput, now = new Date()): Promise<Reminder> {
     const data = parseInput(input);
@@ -231,6 +253,14 @@ export class ReminderEngineService {
       throw error;
     }
     if (outcome !== 'send') return;
+
+    if (!(await this.wanted(reminder, occurrenceAt))) {
+      await this.prisma.reminderDelivery.update({
+        where: { id: deliveryId },
+        data: { status: 'skipped', error: null },
+      });
+      return;
+    }
 
     let status = 'sent';
     let errorText: string | null = null;

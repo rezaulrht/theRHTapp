@@ -371,3 +371,29 @@ describe('money entries', () => {
     expect((await http().get('/api/money/entries/names')).status).toBe(401);
   });
 });
+
+describe('text the database must be able to store', () => {
+  it('keeps Bangla text and the taka sign in an entry name and note', async () => {
+    const app = await createTestApp();
+    try {
+      const cookie = await loginAsOwner(app);
+      await ensureMoneySeed(app.get(PrismaService));
+      const call = (method: 'get' | 'post', url: string) => request(app.getHttpServer())[method](url).set('Cookie', cookie);
+      const cash = (await call('get', '/api/money/accounts')).body.find((a: Named) => a.name === 'Cash').id;
+      const food = (await call('get', '/api/money/categories')).body.find((c: Named) => c.name === 'Food').id;
+      const res = await call('post', '/api/money/entries').send({
+        kind: 'expense',
+        date: '2026-11-10',
+        amount: 5000,
+        name: 'দুপুরের খাবার',
+        note: '৳50 ক্যান্টিন',
+        accountId: cash,
+        categoryId: food,
+      });
+      expect(res.status).toBe(201);
+      expect(res.body).toMatchObject({ name: 'দুপুরের খাবার', note: '৳50 ক্যান্টিন' });
+    } finally {
+      await app.close();
+    }
+  });
+});

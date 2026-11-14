@@ -86,6 +86,8 @@ export async function startLocalDb(options = {}) {
     password: PASSWORD,
     port,
     persistent: true,
+    // UTF-8 from the start, whatever the machine's own code page is.
+    initdbFlags: ['--encoding=UTF8', '--locale=C'],
     onLog: (line) => log.push(String(line)),
     onError: (line) => log.push(String(line)),
   });
@@ -106,8 +108,23 @@ export async function startLocalDb(options = {}) {
   const client = server.getPgClient();
   await client.connect();
   for (const name of databases) {
-    const found = await client.query('SELECT 1 FROM pg_database WHERE datname = $1', [name]);
-    if (found.rowCount === 0) await client.query(`CREATE DATABASE "${name}"`);
+    const found = await client.query(
+      'SELECT pg_encoding_to_char(encoding) AS encoding FROM pg_database WHERE datname = $1',
+      [name],
+    );
+    const encoding = found.rows[0]?.encoding;
+    if (encoding === 'UTF8') continue;
+    if (encoding) {
+      // On Windows a database inherits the system code page unless told
+      // otherwise, and then cannot store ৳ or Bangla text. Production is
+      // UTF-8, so a local database must be too. This one only ever holds
+      // local test data, so it is rebuilt.
+      console.warn(`Local database "${name}" was ${encoding}; recreating it as UTF8. Run migrations again.`);
+      await client.query(`DROP DATABASE "${name}" WITH (FORCE)`);
+    }
+    await client.query(
+      `CREATE DATABASE "${name}" ENCODING 'UTF8' LC_COLLATE 'C' LC_CTYPE 'C' TEMPLATE template0`,
+    );
   }
   await client.end();
 
