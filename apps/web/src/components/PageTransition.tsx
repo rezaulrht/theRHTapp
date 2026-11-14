@@ -1,17 +1,20 @@
 'use client';
 
-import { motion, useReducedMotion } from 'motion/react';
+import { motion } from 'motion/react';
 import type { ReactNode } from 'react';
+import { EASE_OUT } from './motion/ease';
 
-/** A short fade with a slight rise as each page arrives. Skipped under reduced motion. */
+/**
+ * The page change: content fades in while each page's heading rises on its own
+ * (see `Reveal`), so the title leads and the rest follows. Movement is dropped
+ * automatically when the device asks for reduced motion.
+ */
 export function PageTransition({ children }: { children: ReactNode }) {
-  const reduced = useReducedMotion();
-  if (reduced) return <>{children}</>;
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.45, ease: EASE_OUT }}
     >
       {children}
     </motion.div>

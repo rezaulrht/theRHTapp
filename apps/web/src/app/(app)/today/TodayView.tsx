@@ -1,9 +1,11 @@
 'use client';
 
-import { Panel } from '@pa/ui';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { InstallGuide } from '@/components/InstallGuide';
+import { Reveal } from '@/components/motion/Reveal';
+import { SpotlightPanel } from '@/components/motion/SpotlightPanel';
+import { FadeUp, Stagger, StaggerItem } from '@/components/motion/Stagger';
 import { useSettings } from '@/components/SettingsProvider';
 import { greetingFor, longDate } from '@/lib/today';
 
@@ -41,11 +43,18 @@ export function TodayView() {
 
   return (
     <>
+      {/* Height is reserved so nothing below jumps when the greeting arrives. */}
       <header className="mb-10 min-h-[6.5rem]">
-        <p className="text-sage">{ready ? longDate(now, timeZone) : ' '}</p>
-        <h1 className="mt-1 font-display text-4xl leading-tight text-ivory md:text-5xl">
-          {ready ? greetingFor(now, timeZone) : ' '}
-        </h1>
+        {ready ? (
+          <>
+            <FadeUp>
+              <p className="text-sage">{longDate(now, timeZone)}</p>
+            </FadeUp>
+            <h1 className="mt-1 font-display text-4xl leading-tight text-ivory md:text-5xl">
+              <Reveal delay={0.08}>{greetingFor(now, timeZone)}</Reveal>
+            </h1>
+          </>
+        ) : null}
       </header>
 
       <InstallGuide />
@@ -56,17 +65,19 @@ export function TodayView() {
         </p>
       ) : null}
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <Stagger delay={0.2} className="grid gap-4 lg:grid-cols-3">
         {blocks.map((block) => (
-          <Link key={block.href} href={block.href} className="group rounded-[var(--radius-panel)]">
-            <Panel className="h-full border border-transparent transition-colors duration-150 group-hover:border-hairline">
-              <h2 className="font-display text-2xl text-ivory">{block.title}</h2>
-              <p className="mt-2 text-sage">{block.text}</p>
-              <p className="mt-6 text-sm text-brass">Not built yet</p>
-            </Panel>
-          </Link>
+          <StaggerItem key={block.href} className="h-full">
+            <Link href={block.href} className="block h-full rounded-[var(--radius-panel)]">
+              <SpotlightPanel className="h-full">
+                <h2 className="font-display text-2xl text-ivory">{block.title}</h2>
+                <p className="mt-2 text-sage">{block.text}</p>
+                <p className="mt-6 text-sm text-brass">Not built yet</p>
+              </SpotlightPanel>
+            </Link>
+          </StaggerItem>
         ))}
-      </div>
+      </Stagger>
     </>
   );
 }

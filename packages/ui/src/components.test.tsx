@@ -148,3 +148,35 @@ describe('AppNav', () => {
     expect(screen.getByRole('navigation')).toBeInTheDocument();
   });
 });
+
+describe('AppNav marker', () => {
+  const items = [
+    { href: '/today', label: 'Today', icon: <span>t</span> },
+    { href: '/money', label: 'Money', icon: <span>m</span> },
+    { href: '/settings', label: 'Settings', icon: <span>s</span> },
+  ];
+
+  it('sits on the current section so it can slide between them', () => {
+    const { container, rerender } = render(<AppNav items={items} current="/money" />);
+    const marker = container.querySelector<HTMLElement>('[data-nav-marker]')!;
+    expect(marker.style.getPropertyValue('--nav-index')).toBe('1');
+    expect(marker.style.getPropertyValue('--nav-count')).toBe('3');
+
+    rerender(<AppNav items={items} current="/settings/general" />);
+    expect(container.querySelector<HTMLElement>('[data-nav-marker]')!.style.getPropertyValue('--nav-index')).toBe('2');
+  });
+
+  it('is hidden when no section is current', () => {
+    const { container } = render(<AppNav items={items} current="/login" />);
+    expect(container.querySelector('[data-nav-marker]')).toBeNull();
+  });
+});
+
+describe('Button press and sweep', () => {
+  it('keeps its label above the fill that sweeps in on hover', () => {
+    render(<Button>Save changes</Button>);
+    const button = screen.getByRole('button', { name: 'Save changes' });
+    expect(button.querySelector('[data-sweep]')).not.toBeNull();
+    expect(button.querySelector('[data-label]')).toHaveTextContent('Save changes');
+  });
+});

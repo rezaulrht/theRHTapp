@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Bodoni_Moda, Hanken_Grotesk } from 'next/font/google';
 import type { ReactNode } from 'react';
+import { MotionProvider } from '@/components/motion/MotionProvider';
 import { OfflineBanner } from '@/components/OfflineBanner';
 import { ServiceWorkerRegistrar } from '@/components/ServiceWorkerRegistrar';
 import './globals.css';
@@ -29,7 +30,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <OfflineBanner />
         <ServiceWorkerRegistrar />
-        {children}
+        <MotionProvider>{children}</MotionProvider>
       </body>
     </html>
   );
