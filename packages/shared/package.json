@@ -19,5 +19,15 @@
   "dependencies": {
     "luxon": "^3.7.2",
     "zod": "^4.6.7"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./amount": {
+      "types": "./dist/amount.d.ts",
+      "default": "./dist/amount.js"
+    }
   }
 }
