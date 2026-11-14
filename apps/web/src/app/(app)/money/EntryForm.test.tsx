@@ -53,7 +53,7 @@ function mockApi(routes: Record<string, Route>) {
 }
 
 const noSuggestions: Route = () => ({ status: 200, body: [] });
-const posts = (calls: { key: string }[]) => calls.filter((call) => !call.key.startsWith('GET'));
+const posts = <T extends { key: string }>(calls: T[]): T[] => calls.filter((call) => !call.key.startsWith('GET'));
 
 function renderForm(props: Partial<Parameters<typeof EntryForm>[0]> = {}) {
   const onSaved = vi.fn();
