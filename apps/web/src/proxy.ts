@@ -10,5 +10,5 @@ export function proxy(request: NextRequest): NextResponse {
 
 export const config = {
   // Pages only. The API, Next's own files and static assets are left alone.
-  matcher: ['/((?!api/|_next/|icons/|sw\\.js|manifest\\.webmanifest|favicon\\.ico|.*\\.(?:png|svg|ico|webp)$).*)'],
+  matcher: ['/((?!api/|_next/|icons/|sw\\.js|offline\\.html|manifest\\.webmanifest|favicon\\.ico|.*\\.(?:png|svg|ico|webp)$).*)'],
 };

@@ -3,6 +3,7 @@
 import { Panel } from '@pa/ui';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { InstallGuide } from '@/components/InstallGuide';
 import { useSettings } from '@/components/SettingsProvider';
 import { greetingFor, longDate } from '@/lib/today';
 
@@ -46,6 +47,8 @@ export function TodayView() {
           {ready ? greetingFor(now, timeZone) : ' '}
         </h1>
       </header>
+
+      <InstallGuide />
 
       {loadError ? (
         <p role="alert" className="mb-6 text-alert">
