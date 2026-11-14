@@ -6,12 +6,14 @@ import { AccountsController } from './accounts.controller';
 import { AccountsService } from './accounts.service';
 import { CategoriesController } from './categories.controller';
 import { CategoriesService } from './categories.service';
+import { EntriesController } from './entries.controller';
+import { EntriesService } from './entries.service';
 import { ensureMoneySeed } from './seed';
 
 @Module({
-  controllers: [AccountsController, CategoriesController],
-  providers: [AccountsService, CategoriesService],
-  exports: [AccountsService, CategoriesService],
+  controllers: [AccountsController, CategoriesController, EntriesController],
+  providers: [AccountsService, CategoriesService, EntriesService],
+  exports: [AccountsService, CategoriesService, EntriesService],
 })
 export class MoneyModule implements OnModuleInit {
   constructor(
