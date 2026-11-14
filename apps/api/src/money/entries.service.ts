@@ -60,6 +60,7 @@ export interface EntryFilter {
   to?: string;
   accountId?: string;
   categoryId?: string;
+  personId?: string;
   q?: string;
   limit?: number;
 }
@@ -266,6 +267,34 @@ export class EntriesService {
     return toJson(await this.find(id));
   }
 
+  /** Records money lent, borrowed or repaid. `name` is supplied by the caller, who knows the person. */
+  async createLoan(input: {
+    personId: string;
+    direction: LoanDirection;
+    amount: number;
+    accountId: string;
+    name: string;
+    date?: string;
+    note?: string;
+  }): Promise<EntryJson> {
+    const day = await this.resolveDate(input.date);
+    await this.activeAccount(input.accountId, 'accountId');
+    const created = await this.prisma.moneyEntry.create({
+      data: {
+        kind: 'loan',
+        date: toDbDate(day),
+        amount: input.amount,
+        name: input.name,
+        note: cleanNote(input.note),
+        accountId: input.accountId,
+        accountDelta: loanDelta(input.direction, input.amount),
+        personId: input.personId,
+        loanDirection: input.direction,
+      },
+    });
+    return toJson(await this.find(created.id));
+  }
+
   async update(id: string, input: UpdateEntryInput): Promise<EntryJson> {
     const entry = await this.find(id);
     if (input.kind !== undefined && input.kind !== entry.kind) {
@@ -350,8 +379,9 @@ export class EntriesService {
   async list(filter: EntryFilter): Promise<EntryJson[]> {
     const where: Prisma.MoneyEntryWhereInput = {};
     if (filter.date) where.date = toDbDate(filter.date);
-    else where.date = { gte: toDbDate(filter.from!), lte: toDbDate(filter.to!) };
+    else if (filter.from && filter.to) where.date = { gte: toDbDate(filter.from), lte: toDbDate(filter.to) };
     if (filter.categoryId) where.categoryId = filter.categoryId;
+    if (filter.personId) where.personId = filter.personId;
     const and: Prisma.MoneyEntryWhereInput[] = [];
     // A transfer belongs to both of its accounts.
     if (filter.accountId) and.push({ OR: [{ accountId: filter.accountId }, { toAccountId: filter.accountId }] });
