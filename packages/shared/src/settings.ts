@@ -9,6 +9,11 @@ export const timeOfDaySchema = z
   .string()
   .regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Use a 24-hour time such as 05:30');
 
+/** Ways a reminder can reach the owner. */
+export const CHANNELS = ['push', 'email'] as const;
+export type Channel = (typeof CHANNELS)[number];
+export const channelSchema = z.enum(CHANNELS);
+
 const dayTypeSchema = z.object({
   id: z.string().min(1, 'A day type needs an id'),
   name: z.string().min(1, 'A day type needs a name'),
@@ -45,6 +50,16 @@ export const settingsSchema = z
       enabled: z.boolean(),
       start: timeOfDaySchema,
       end: timeOfDaySchema,
+    }),
+    /** Warn when spending reaches this percentage of a budget. */
+    'money.budgetWarnPercent': z.number().int().min(1).max(100),
+    /** The daily nudge to log spending. */
+    'money.dailyReminder': z.object({
+      enabled: z.boolean(),
+      time: timeOfDaySchema,
+      channels: z.array(channelSchema),
+      /** Do not send it on a day that already has an entry. */
+      skipIfLogged: z.boolean(),
     }),
   })
   .superRefine((settings, ctx) => {
@@ -90,6 +105,8 @@ export const defaultSettings: Settings = {
   },
   'general.notificationEmail': '',
   'general.quietHours': { enabled: false, start: '23:30', end: '05:00' },
+  'money.budgetWarnPercent': 80,
+  'money.dailyReminder': { enabled: true, time: '21:00', channels: ['push'], skipIfLogged: true },
 };
 
 export interface SettingsError {

@@ -51,3 +51,37 @@ describe('settings', () => {
     expect(parseSettingsPatch(defaultSettings, null).ok).toBe(false);
   });
 });
+
+describe('money settings', () => {
+  it('have valid defaults', () => {
+    expect(defaultSettings['money.budgetWarnPercent']).toBe(80);
+    expect(defaultSettings['money.dailyReminder']).toEqual({
+      enabled: true,
+      time: '21:00',
+      channels: ['push'],
+      skipIfLogged: true,
+    });
+  });
+
+  it.each([0, 101, 80.5])('rejects a warning percentage of %s', (value) => {
+    expect(parseSettingsPatch(defaultSettings, { 'money.budgetWarnPercent': value }).ok).toBe(false);
+  });
+
+  it('accepts a warning percentage from 1 to 100', () => {
+    expect(parseSettingsPatch(defaultSettings, { 'money.budgetWarnPercent': 1 }).ok).toBe(true);
+    expect(parseSettingsPatch(defaultSettings, { 'money.budgetWarnPercent': 100 }).ok).toBe(true);
+  });
+
+  it('rejects a bad reminder time and an unknown channel', () => {
+    const base = defaultSettings['money.dailyReminder'];
+    const badTime = parseSettingsPatch(defaultSettings, { 'money.dailyReminder': { ...base, time: '9pm' } });
+    expect(badTime.ok).toBe(false);
+    if (!badTime.ok) expect(badTime.errors[0]!.path).toBe('money.dailyReminder.time');
+    expect(parseSettingsPatch(defaultSettings, { 'money.dailyReminder': { ...base, channels: ['sms'] } }).ok).toBe(false);
+  });
+
+  it('accepts a reminder with no channels', () => {
+    const base = defaultSettings['money.dailyReminder'];
+    expect(parseSettingsPatch(defaultSettings, { 'money.dailyReminder': { ...base, channels: [] } }).ok).toBe(true);
+  });
+});

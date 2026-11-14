@@ -1,10 +1,6 @@
 import { z } from 'zod';
 import { timeOfDaySchema } from './settings';
 
-export const CHANNELS = ['push', 'email'] as const;
-export type Channel = (typeof CHANNELS)[number];
-export const channelSchema = z.enum(CHANNELS);
-
 /** Days of the week a schedule applies to: 0 = Sunday … 6 = Saturday. */
 const daysSchema = z
   .array(z.number().int().min(0).max(6))
