@@ -3,13 +3,15 @@
   "private": true,
   "packageManager": "pnpm@12.16.1",
   "engines": {
-    "node": ">=22"
+    "node": "22.x"
   },
   "scripts": {
     "build": "turbo run build",
     "lint": "turbo run lint",
     "test": "turbo run test",
-    "dev": "turbo run dev"
+    "dev": "turbo run dev",
+    "dev:db": "pnpm --filter @pa/db local-db",
+    "heroku-postbuild": "turbo run build --filter=api..."
   },
   "devDependencies": {
     "turbo": "^2.5.0",

@@ -92,6 +92,28 @@ describe('auth', () => {
     expect((await http().get('/api/auth/me').set('Cookie', cookie)).status).toBe(401);
   });
 
+  it('clears a cookie it rejects, so the browser stops sending it', async () => {
+    // Without this the web app loops: its page guard sees a cookie and sends
+    // the owner back into the app, where every request is refused again.
+    await resetDb(app);
+    const cookie = await loginAsOwner(app);
+    await prisma.session.deleteMany();
+
+    const res = await http().get('/api/auth/me').set('Cookie', cookie);
+
+    expect(res.status).toBe(401);
+    const cleared = String(res.headers['set-cookie']);
+    expect(cleared).toMatch(/^pa_session=;/);
+    expect(cleared).toMatch(/Expires=Thu, 01 Jan 1970/);
+    expect(cleared).toMatch(/Path=\//);
+  });
+
+  it('does not set a cookie when none was sent', async () => {
+    const res = await http().get('/api/auth/me');
+    expect(res.status).toBe(401);
+    expect(res.headers['set-cookie']).toBeUndefined();
+  });
+
   it('a session unused for over a day is extended and the cookie re-sent', async () => {
     await resetDb(app);
     const cookie = await loginAsOwner(app);

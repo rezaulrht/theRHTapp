@@ -41,7 +41,15 @@ export class SessionGuard implements CanActivate {
     const req = http.getRequest<AuthedRequest>();
     const token: unknown = req.cookies?.[this.env.SESSION_COOKIE_NAME];
     const session = typeof token === 'string' && token ? await this.auth.validate(token) : null;
-    if (!session) throw new UnauthorizedException('Log in to continue');
+    if (!session) {
+      // Tell the browser to drop a cookie that no longer works. The web app's
+      // page guard only checks that a cookie exists; a dead one left in place
+      // would send the owner round in circles between the app and the login page.
+      if (typeof token === 'string' && token) {
+        http.getResponse<Response>().clearCookie(this.env.SESSION_COOKIE_NAME, { path: '/' });
+      }
+      throw new UnauthorizedException('Log in to continue');
+    }
 
     const { renewedUntil, ...auth } = session;
     req.auth = auth;
