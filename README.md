@@ -10,8 +10,13 @@ Built so far:
   (categories against last month, budgets, cost by kind of day, a filterable list), loans,
   budget warnings, a daily reminder to log spending, a CSV download, and every list editable
   under Settings, Money.
+- Habits: the daily routine with one-tap ticks (on time, late or missed by the clock), a score
+  against the day's target, a habit day that ends at 4 am, prayer times worked out for your
+  location, skip days, reminders when things open, fall due or are about to close, an optional
+  end-of-day summary, weekly and monthly progress with the weakest items and streaks, and the
+  whole routine and its scoring rules editable under Settings, Habits.
 
-Habits and Vault come next.
+Vault comes next.
 
 ## Layout
 

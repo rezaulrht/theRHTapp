@@ -290,6 +290,24 @@ describe('habits DayView', () => {
     expect(screen.queryByRole('button', { name: 'Skip this day' })).not.toBeInTheDocument();
   });
 
+  it('opens the day named in the link from the progress page', async () => {
+    mockWorld(reportOf([item({})]), reportOf([item({ outcome: 'missed', score: -750 })], { day: yesterday, isToday: false, closed: true }));
+    window.history.replaceState(null, '', `/habits?day=${yesterday}`);
+    renderDay();
+    expect(await screen.findByText('Missed')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Next day' })).toBeEnabled();
+    // The link's day is used once; the address goes back to plain.
+    expect(window.location.search).toBe('');
+  });
+
+  it('ignores a day in the link that has not come yet', async () => {
+    mockWorld(reportOf([item({})]));
+    window.history.replaceState(null, '', `/habits?day=${addDays(today, 3)}`);
+    renderDay();
+    expect(await screen.findByRole('button', { name: 'Mark Breakfast done' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Next day' })).toBeDisabled();
+  });
+
   it('goes back a day, never forward past today, and a lost day lists what cost most first', async () => {
     const past = reportOf(
       [

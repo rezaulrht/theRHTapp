@@ -35,7 +35,7 @@ export function DayView() {
     if (!today || day !== null) return;
     // Arriving from a bar on the progress page opens that day.
     const asked = new URLSearchParams(window.location.search).get('day');
-    if (asked && /^d{4}-d{2}-d{2}$/.test(asked) && asked <= today) {
+    if (asked && /^\d{4}-\d{2}-\d{2}$/.test(asked) && asked <= today) {
       setDay(asked);
       window.history.replaceState(null, '', window.location.pathname);
     } else {
