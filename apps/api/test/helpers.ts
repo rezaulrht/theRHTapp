@@ -7,6 +7,10 @@ import { configureApp } from '../src/configure-app';
 import { PrismaService } from '../src/prisma/prisma.service';
 
 const TABLES = [
+  'HabitMark',
+  'HabitDayItem',
+  'HabitDay',
+  'HabitItem',
   'MoneyBudget',
   'MoneyShortcut',
   'MoneyEntry',

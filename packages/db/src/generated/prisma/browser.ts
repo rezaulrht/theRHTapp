@@ -79,3 +79,23 @@ export type MoneyShortcut = Prisma.MoneyShortcutModel
  * A monthly spending limit. The row with no category is the whole-month budget.
  */
 export type MoneyBudget = Prisma.MoneyBudgetModel
+/**
+ * Model HabitItem
+ * One thing on the routine: breakfast by 8:30, Fajr, water every 90 minutes.
+ */
+export type HabitItem = Prisma.HabitItemModel
+/**
+ * Model HabitDay
+ * One habit day. Created the first time the day is reached.
+ */
+export type HabitDay = Prisma.HabitDayModel
+/**
+ * Model HabitDayItem
+ * A day's frozen copy of an item: the rules and window it is scored with.
+ */
+export type HabitDayItem = Prisma.HabitDayItemModel
+/**
+ * Model HabitMark
+ * One tap: the item was done at this instant, on this habit day.
+ */
+export type HabitMark = Prisma.HabitMarkModel

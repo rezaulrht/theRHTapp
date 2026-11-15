@@ -62,7 +62,11 @@ export const ModelName = {
   MoneyPerson: 'MoneyPerson',
   MoneyEntry: 'MoneyEntry',
   MoneyShortcut: 'MoneyShortcut',
-  MoneyBudget: 'MoneyBudget'
+  MoneyBudget: 'MoneyBudget',
+  HabitItem: 'HabitItem',
+  HabitDay: 'HabitDay',
+  HabitDayItem: 'HabitDayItem',
+  HabitMark: 'HabitMark'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -239,6 +243,66 @@ export const MoneyBudgetScalarFieldEnum = {
 } as const
 
 export type MoneyBudgetScalarFieldEnum = (typeof MoneyBudgetScalarFieldEnum)[keyof typeof MoneyBudgetScalarFieldEnum]
+
+
+export const HabitItemScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  points: 'points',
+  timing: 'timing',
+  appliesTo: 'appliesTo',
+  lateShare: 'lateShare',
+  missMultiplier: 'missMultiplier',
+  reminders: 'reminders',
+  ignoreQuietHours: 'ignoreQuietHours',
+  sortOrder: 'sortOrder',
+  pausedAt: 'pausedAt',
+  archivedAt: 'archivedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type HabitItemScalarFieldEnum = (typeof HabitItemScalarFieldEnum)[keyof typeof HabitItemScalarFieldEnum]
+
+
+export const HabitDayScalarFieldEnum = {
+  day: 'day',
+  skipped: 'skipped',
+  skippedReason: 'skippedReason',
+  closedAt: 'closedAt'
+} as const
+
+export type HabitDayScalarFieldEnum = (typeof HabitDayScalarFieldEnum)[keyof typeof HabitDayScalarFieldEnum]
+
+
+export const HabitDayItemScalarFieldEnum = {
+  id: 'id',
+  day: 'day',
+  itemId: 'itemId',
+  name: 'name',
+  points: 'points',
+  lateShare: 'lateShare',
+  missMultiplier: 'missMultiplier',
+  timing: 'timing',
+  opensAt: 'opensAt',
+  dueAt: 'dueAt',
+  sortOrder: 'sortOrder',
+  skipped: 'skipped',
+  outcome: 'outcome',
+  score: 'score'
+} as const
+
+export type HabitDayItemScalarFieldEnum = (typeof HabitDayItemScalarFieldEnum)[keyof typeof HabitDayItemScalarFieldEnum]
+
+
+export const HabitMarkScalarFieldEnum = {
+  id: 'id',
+  day: 'day',
+  itemId: 'itemId',
+  at: 'at',
+  createdAt: 'createdAt'
+} as const
+
+export type HabitMarkScalarFieldEnum = (typeof HabitMarkScalarFieldEnum)[keyof typeof HabitMarkScalarFieldEnum]
 
 
 export const SortOrder = {
