@@ -20,14 +20,25 @@ export type HabitDayModel = runtime.Types.Result.DefaultSelection<Prisma.$HabitD
 
 export type AggregateHabitDay = {
   _count: HabitDayCountAggregateOutputType | null
+  _avg: HabitDayAvgAggregateOutputType | null
+  _sum: HabitDaySumAggregateOutputType | null
   _min: HabitDayMinAggregateOutputType | null
   _max: HabitDayMaxAggregateOutputType | null
+}
+
+export type HabitDayAvgAggregateOutputType = {
+  targetPercent: number | null
+}
+
+export type HabitDaySumAggregateOutputType = {
+  targetPercent: number | null
 }
 
 export type HabitDayMinAggregateOutputType = {
   day: Date | null
   skipped: boolean | null
   skippedReason: string | null
+  targetPercent: number | null
   closedAt: Date | null
 }
 
@@ -35,6 +46,7 @@ export type HabitDayMaxAggregateOutputType = {
   day: Date | null
   skipped: boolean | null
   skippedReason: string | null
+  targetPercent: number | null
   closedAt: Date | null
 }
 
@@ -42,15 +54,25 @@ export type HabitDayCountAggregateOutputType = {
   day: number
   skipped: number
   skippedReason: number
+  targetPercent: number
   closedAt: number
   _all: number
 }
 
 
+export type HabitDayAvgAggregateInputType = {
+  targetPercent?: true
+}
+
+export type HabitDaySumAggregateInputType = {
+  targetPercent?: true
+}
+
 export type HabitDayMinAggregateInputType = {
   day?: true
   skipped?: true
   skippedReason?: true
+  targetPercent?: true
   closedAt?: true
 }
 
@@ -58,6 +80,7 @@ export type HabitDayMaxAggregateInputType = {
   day?: true
   skipped?: true
   skippedReason?: true
+  targetPercent?: true
   closedAt?: true
 }
 
@@ -65,6 +88,7 @@ export type HabitDayCountAggregateInputType = {
   day?: true
   skipped?: true
   skippedReason?: true
+  targetPercent?: true
   closedAt?: true
   _all?: true
 }
@@ -107,6 +131,18 @@ export type HabitDayAggregateArgs<ExtArgs extends runtime.Types.Extensions.Inter
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: HabitDayAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: HabitDaySumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: HabitDayMinAggregateInputType
@@ -137,6 +173,8 @@ export type HabitDayGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   _count?: HabitDayCountAggregateInputType | true
+  _avg?: HabitDayAvgAggregateInputType
+  _sum?: HabitDaySumAggregateInputType
   _min?: HabitDayMinAggregateInputType
   _max?: HabitDayMaxAggregateInputType
 }
@@ -145,8 +183,11 @@ export type HabitDayGroupByOutputType = {
   day: Date
   skipped: boolean
   skippedReason: string | null
+  targetPercent: number
   closedAt: Date | null
   _count: HabitDayCountAggregateOutputType | null
+  _avg: HabitDayAvgAggregateOutputType | null
+  _sum: HabitDaySumAggregateOutputType | null
   _min: HabitDayMinAggregateOutputType | null
   _max: HabitDayMaxAggregateOutputType | null
 }
@@ -173,6 +214,7 @@ export type HabitDayWhereInput = {
   day?: Prisma.DateTimeFilter<"HabitDay"> | Date | string
   skipped?: Prisma.BoolFilter<"HabitDay"> | boolean
   skippedReason?: Prisma.StringNullableFilter<"HabitDay"> | string | null
+  targetPercent?: Prisma.IntFilter<"HabitDay"> | number
   closedAt?: Prisma.DateTimeNullableFilter<"HabitDay"> | Date | string | null
   items?: Prisma.HabitDayItemListRelationFilter
 }
@@ -181,6 +223,7 @@ export type HabitDayOrderByWithRelationInput = {
   day?: Prisma.SortOrder
   skipped?: Prisma.SortOrder
   skippedReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  targetPercent?: Prisma.SortOrder
   closedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   items?: Prisma.HabitDayItemOrderByRelationAggregateInput
 }
@@ -192,6 +235,7 @@ export type HabitDayWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.HabitDayWhereInput | Prisma.HabitDayWhereInput[]
   skipped?: Prisma.BoolFilter<"HabitDay"> | boolean
   skippedReason?: Prisma.StringNullableFilter<"HabitDay"> | string | null
+  targetPercent?: Prisma.IntFilter<"HabitDay"> | number
   closedAt?: Prisma.DateTimeNullableFilter<"HabitDay"> | Date | string | null
   items?: Prisma.HabitDayItemListRelationFilter
 }, "day">
@@ -200,10 +244,13 @@ export type HabitDayOrderByWithAggregationInput = {
   day?: Prisma.SortOrder
   skipped?: Prisma.SortOrder
   skippedReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  targetPercent?: Prisma.SortOrder
   closedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.HabitDayCountOrderByAggregateInput
+  _avg?: Prisma.HabitDayAvgOrderByAggregateInput
   _max?: Prisma.HabitDayMaxOrderByAggregateInput
   _min?: Prisma.HabitDayMinOrderByAggregateInput
+  _sum?: Prisma.HabitDaySumOrderByAggregateInput
 }
 
 export type HabitDayScalarWhereWithAggregatesInput = {
@@ -213,6 +260,7 @@ export type HabitDayScalarWhereWithAggregatesInput = {
   day?: Prisma.DateTimeWithAggregatesFilter<"HabitDay"> | Date | string
   skipped?: Prisma.BoolWithAggregatesFilter<"HabitDay"> | boolean
   skippedReason?: Prisma.StringNullableWithAggregatesFilter<"HabitDay"> | string | null
+  targetPercent?: Prisma.IntWithAggregatesFilter<"HabitDay"> | number
   closedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"HabitDay"> | Date | string | null
 }
 
@@ -220,6 +268,7 @@ export type HabitDayCreateInput = {
   day: Date | string
   skipped?: boolean
   skippedReason?: string | null
+  targetPercent?: number
   closedAt?: Date | string | null
   items?: Prisma.HabitDayItemCreateNestedManyWithoutHabitDayInput
 }
@@ -228,6 +277,7 @@ export type HabitDayUncheckedCreateInput = {
   day: Date | string
   skipped?: boolean
   skippedReason?: string | null
+  targetPercent?: number
   closedAt?: Date | string | null
   items?: Prisma.HabitDayItemUncheckedCreateNestedManyWithoutHabitDayInput
 }
@@ -236,6 +286,7 @@ export type HabitDayUpdateInput = {
   day?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   skipped?: Prisma.BoolFieldUpdateOperationsInput | boolean
   skippedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  targetPercent?: Prisma.IntFieldUpdateOperationsInput | number
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   items?: Prisma.HabitDayItemUpdateManyWithoutHabitDayNestedInput
 }
@@ -244,6 +295,7 @@ export type HabitDayUncheckedUpdateInput = {
   day?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   skipped?: Prisma.BoolFieldUpdateOperationsInput | boolean
   skippedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  targetPercent?: Prisma.IntFieldUpdateOperationsInput | number
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   items?: Prisma.HabitDayItemUncheckedUpdateManyWithoutHabitDayNestedInput
 }
@@ -252,6 +304,7 @@ export type HabitDayCreateManyInput = {
   day: Date | string
   skipped?: boolean
   skippedReason?: string | null
+  targetPercent?: number
   closedAt?: Date | string | null
 }
 
@@ -259,6 +312,7 @@ export type HabitDayUpdateManyMutationInput = {
   day?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   skipped?: Prisma.BoolFieldUpdateOperationsInput | boolean
   skippedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  targetPercent?: Prisma.IntFieldUpdateOperationsInput | number
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
@@ -266,6 +320,7 @@ export type HabitDayUncheckedUpdateManyInput = {
   day?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   skipped?: Prisma.BoolFieldUpdateOperationsInput | boolean
   skippedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  targetPercent?: Prisma.IntFieldUpdateOperationsInput | number
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
@@ -273,13 +328,19 @@ export type HabitDayCountOrderByAggregateInput = {
   day?: Prisma.SortOrder
   skipped?: Prisma.SortOrder
   skippedReason?: Prisma.SortOrder
+  targetPercent?: Prisma.SortOrder
   closedAt?: Prisma.SortOrder
+}
+
+export type HabitDayAvgOrderByAggregateInput = {
+  targetPercent?: Prisma.SortOrder
 }
 
 export type HabitDayMaxOrderByAggregateInput = {
   day?: Prisma.SortOrder
   skipped?: Prisma.SortOrder
   skippedReason?: Prisma.SortOrder
+  targetPercent?: Prisma.SortOrder
   closedAt?: Prisma.SortOrder
 }
 
@@ -287,7 +348,12 @@ export type HabitDayMinOrderByAggregateInput = {
   day?: Prisma.SortOrder
   skipped?: Prisma.SortOrder
   skippedReason?: Prisma.SortOrder
+  targetPercent?: Prisma.SortOrder
   closedAt?: Prisma.SortOrder
+}
+
+export type HabitDaySumOrderByAggregateInput = {
+  targetPercent?: Prisma.SortOrder
 }
 
 export type HabitDayScalarRelationFilter = {
@@ -313,6 +379,7 @@ export type HabitDayCreateWithoutItemsInput = {
   day: Date | string
   skipped?: boolean
   skippedReason?: string | null
+  targetPercent?: number
   closedAt?: Date | string | null
 }
 
@@ -320,6 +387,7 @@ export type HabitDayUncheckedCreateWithoutItemsInput = {
   day: Date | string
   skipped?: boolean
   skippedReason?: string | null
+  targetPercent?: number
   closedAt?: Date | string | null
 }
 
@@ -343,6 +411,7 @@ export type HabitDayUpdateWithoutItemsInput = {
   day?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   skipped?: Prisma.BoolFieldUpdateOperationsInput | boolean
   skippedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  targetPercent?: Prisma.IntFieldUpdateOperationsInput | number
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
@@ -350,6 +419,7 @@ export type HabitDayUncheckedUpdateWithoutItemsInput = {
   day?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   skipped?: Prisma.BoolFieldUpdateOperationsInput | boolean
   skippedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  targetPercent?: Prisma.IntFieldUpdateOperationsInput | number
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
@@ -388,6 +458,7 @@ export type HabitDaySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   day?: boolean
   skipped?: boolean
   skippedReason?: boolean
+  targetPercent?: boolean
   closedAt?: boolean
   items?: boolean | Prisma.HabitDay$itemsArgs<ExtArgs>
   _count?: boolean | Prisma.HabitDayCountOutputTypeDefaultArgs<ExtArgs>
@@ -397,6 +468,7 @@ export type HabitDaySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   day?: boolean
   skipped?: boolean
   skippedReason?: boolean
+  targetPercent?: boolean
   closedAt?: boolean
 }, ExtArgs["result"]["habitDay"]>
 
@@ -404,6 +476,7 @@ export type HabitDaySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   day?: boolean
   skipped?: boolean
   skippedReason?: boolean
+  targetPercent?: boolean
   closedAt?: boolean
 }, ExtArgs["result"]["habitDay"]>
 
@@ -411,10 +484,11 @@ export type HabitDaySelectScalar = {
   day?: boolean
   skipped?: boolean
   skippedReason?: boolean
+  targetPercent?: boolean
   closedAt?: boolean
 }
 
-export type HabitDayOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"day" | "skipped" | "skippedReason" | "closedAt", ExtArgs["result"]["habitDay"]>
+export type HabitDayOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"day" | "skipped" | "skippedReason" | "targetPercent" | "closedAt", ExtArgs["result"]["habitDay"]>
 export type HabitDayInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   items?: boolean | Prisma.HabitDay$itemsArgs<ExtArgs>
   _count?: boolean | Prisma.HabitDayCountOutputTypeDefaultArgs<ExtArgs>
@@ -431,6 +505,10 @@ export type $HabitDayPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     day: Date
     skipped: boolean
     skippedReason: string | null
+    /**
+     * The share of possible points that wins this day, as it stood on the day.
+     */
+    targetPercent: number
     /**
      * Set once the day has ended and its outcomes are stored.
      */
@@ -862,6 +940,7 @@ export interface HabitDayFieldRefs {
   readonly day: Prisma.FieldRef<"HabitDay", 'DateTime'>
   readonly skipped: Prisma.FieldRef<"HabitDay", 'Boolean'>
   readonly skippedReason: Prisma.FieldRef<"HabitDay", 'String'>
+  readonly targetPercent: Prisma.FieldRef<"HabitDay", 'Int'>
   readonly closedAt: Prisma.FieldRef<"HabitDay", 'DateTime'>
 }
     

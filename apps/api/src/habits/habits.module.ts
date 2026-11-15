@@ -1,13 +1,14 @@
 import { Inject, Module, type OnModuleInit } from '@nestjs/common';
 import { ENV, type Env } from '../env';
 import { PrismaService } from '../prisma/prisma.service';
+import { DaysController, DaysService } from './days';
 import { ItemsController, ItemsService } from './items';
 import { ensureHabitSeed } from './seed';
 
 @Module({
-  controllers: [ItemsController],
-  providers: [ItemsService],
-  exports: [ItemsService],
+  controllers: [ItemsController, DaysController],
+  providers: [ItemsService, DaysService],
+  exports: [ItemsService, DaysService],
 })
 export class HabitsModule implements OnModuleInit {
   constructor(

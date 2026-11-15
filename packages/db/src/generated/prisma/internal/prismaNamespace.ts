@@ -1838,6 +1838,7 @@ export const HabitDayScalarFieldEnum = {
   day: 'day',
   skipped: 'skipped',
   skippedReason: 'skippedReason',
+  targetPercent: 'targetPercent',
   closedAt: 'closedAt'
 } as const
 

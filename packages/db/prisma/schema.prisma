@@ -242,6 +242,8 @@ model HabitDay {
   day           DateTime  @id @db.Date
   skipped       Boolean   @default(false)
   skippedReason String?
+  /// The share of possible points that wins this day, as it stood on the day.
+  targetPercent Int       @default(70)
   /// Set once the day has ended and its outcomes are stored.
   closedAt      DateTime?
 
