@@ -88,6 +88,13 @@ describe('habit days', () => {
     expect(new Date(body.prayers.fajr).getTime()).toBeLessThan(new Date(body.prayers.zuhr).getTime());
   });
 
+  it('an item with no deadline is next without a time', async () => {
+    at(DAY, '23:45');
+    for (const name of ['Breakfast', 'Snack', 'Sleep']) await mark(name);
+    for (let i = 0; i < 8; i++) await mark('Water');
+    expect((await report()).next).toEqual({ itemId: ids.Teeth, name: 'Teeth', at: null });
+  });
+
   it('says what is next', async () => {
     expect((await report()).next).toEqual({ itemId: ids.Breakfast, name: 'Breakfast', at: dhaka(DAY, '08:30').toISOString() });
     at(DAY, '08:20');

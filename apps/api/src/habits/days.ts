@@ -66,7 +66,8 @@ export interface DayReport {
   lost: number;
   target: number;
   won: boolean | null;
-  next: { itemId: string; name: string; at: string } | null;
+  /** `at` is when it opens or is due; null when it can be done any time before the day ends. */
+  next: { itemId: string; name: string; at: string | null } | null;
   items: DayItemJson[];
 }
 
@@ -347,10 +348,12 @@ export class DaysService implements OnModuleInit {
         ? {
             itemId: upcoming.item.itemId,
             name: upcoming.item.name,
-            at: (upcoming.item.opensAt && upcoming.item.opensAt.getTime() > now.getTime()
-              ? upcoming.item.opensAt
-              : upcoming.item.dueAt
-            ).toISOString(),
+            at:
+              upcoming.item.opensAt && upcoming.item.opensAt.getTime() > now.getTime()
+                ? upcoming.item.opensAt.toISOString()
+                : upcoming.item.dueAt.getTime() >= dayEnd.getTime()
+                  ? null
+                  : upcoming.item.dueAt.toISOString(),
           }
         : null,
       items: ordered.map((result) => ({

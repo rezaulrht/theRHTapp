@@ -8,14 +8,10 @@ import { SpotlightPanel } from '@/components/motion/SpotlightPanel';
 import { FadeUp, Stagger, StaggerItem } from '@/components/motion/Stagger';
 import { useSettings } from '@/components/SettingsProvider';
 import { greetingFor, longDate } from '@/lib/today';
+import { TodayHabits } from './TodayHabits';
 import { TodayMoney } from './TodayMoney';
 
 const blocks = [
-  {
-    href: '/habits',
-    title: 'Habits',
-    text: 'Your score so far and the next thing on your routine.',
-  },
   {
     href: '/vault',
     title: 'Vault',
@@ -64,6 +60,9 @@ export function TodayView() {
       <Stagger delay={0.2} className="grid gap-4 lg:grid-cols-3">
         <StaggerItem className="h-full">
           <TodayMoney />
+        </StaggerItem>
+        <StaggerItem className="h-full">
+          <TodayHabits />
         </StaggerItem>
         {blocks.map((block) => (
           <StaggerItem key={block.href} className="h-full">

@@ -9,12 +9,14 @@ export interface AmountProps extends HTMLAttributes<HTMLSpanElement> {
   currency?: string;
   /** Count up from zero to the value when it appears or changes. */
   animate?: boolean;
+  /** A plain number such as a score: 2.5 stays "2.5" rather than money's "2.50". */
+  plain?: boolean;
 }
 
 const COUNT_UP_MS = 600;
 
-export function formatAmount(value: number, currency = ''): string {
-  const fraction = Number.isInteger(value) ? 0 : 2;
+export function formatAmount(value: number, currency = '', plain = false): string {
+  const fraction = plain || Number.isInteger(value) ? 0 : 2;
   const number = new Intl.NumberFormat('en-US', {
     minimumFractionDigits: fraction,
     maximumFractionDigits: 2,
@@ -33,7 +35,7 @@ function prefersReducedMotion(): boolean {
 
 /** A money figure or score in the display face, with digits that line up in columns. */
 export const Amount = forwardRef<HTMLSpanElement, AmountProps>(function Amount(
-  { value, currency, animate = false, className, ...rest },
+  { value, currency, animate = false, plain = false, className, ...rest },
   ref,
 ) {
   const counting = animate && !prefersReducedMotion();
@@ -61,11 +63,11 @@ export const Amount = forwardRef<HTMLSpanElement, AmountProps>(function Amount(
     <span
       ref={ref}
       // Screen readers get the real figure, not the numbers flying past.
-      aria-label={formatAmount(value, currency)}
+      aria-label={formatAmount(value, currency, plain)}
       className={cx('font-display tabular-nums', className)}
       {...rest}
     >
-      <span aria-hidden="true">{formatAmount(shown, currency)}</span>
+      <span aria-hidden="true">{formatAmount(shown, currency, plain)}</span>
     </span>
   );
 });

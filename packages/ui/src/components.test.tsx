@@ -109,6 +109,14 @@ describe('Amount', () => {
     expect(screen.getByText('−৳80')).toBeInTheDocument();
   });
 
+  it('a plain number keeps only the digits it has', () => {
+    setReducedMotion(false);
+    render(<Amount value={7.5} plain />);
+    expect(screen.getByText('7.5')).toBeInTheDocument();
+    render(<Amount value={-2.25} plain />);
+    expect(screen.getByText('−2.25')).toBeInTheDocument();
+  });
+
   it('keeps paisa when there are any', () => {
     setReducedMotion(false);
     render(<Amount value={12.5} />);
