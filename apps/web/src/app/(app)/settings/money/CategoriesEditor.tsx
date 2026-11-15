@@ -4,7 +4,7 @@ import { CATEGORY_COLORS, CATEGORY_ICONS } from '@pa/shared/categories';
 import { Button, Field, Select } from '@pa/ui';
 import { useState, type FormEvent } from 'react';
 import { money, type Category } from '@/lib/money';
-import { Confirm, MoveButtons, Problems, SavedNote, Section, moved, rowClass, useAction } from './shared';
+import { Confirm, MoveButtons, Problems, SavedNote, Section, moved, rowClass, useAction } from '../parts';
 
 const colorNames = Object.keys(CATEGORY_COLORS) as (keyof typeof CATEGORY_COLORS)[];
 const titled = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);

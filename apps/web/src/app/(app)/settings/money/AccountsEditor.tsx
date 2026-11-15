@@ -3,7 +3,7 @@
 import { Button, Field } from '@pa/ui';
 import { useState, type FormEvent } from 'react';
 import { money, paisaToInput, toBalancePaisa, type Account } from '@/lib/money';
-import { Confirm, MoveButtons, Problems, SavedNote, Section, moved, rowClass, useAction } from './shared';
+import { Confirm, MoveButtons, Problems, SavedNote, Section, moved, rowClass, useAction } from '../parts';
 
 const balanceText = (paisa: number) => (paisa < 0 ? `-${paisaToInput(-paisa)}` : paisaToInput(paisa));
 

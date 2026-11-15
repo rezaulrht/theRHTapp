@@ -3,7 +3,7 @@
 import { Button, Field } from '@pa/ui';
 import { useState, type FormEvent } from 'react';
 import { money, paisaToInput, toPaisa, type Budget, type Category } from '@/lib/money';
-import { Problems, SavedNote, Section, useAction } from './shared';
+import { Problems, SavedNote, Section, useAction } from '../parts';
 
 function BudgetRow({
   label,

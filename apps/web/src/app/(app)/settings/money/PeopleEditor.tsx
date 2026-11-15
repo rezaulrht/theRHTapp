@@ -4,7 +4,7 @@ import { Button, Field } from '@pa/ui';
 import { useState, type FormEvent } from 'react';
 import { money, type Person } from '@/lib/money';
 import { owedText } from '@/lib/money-text';
-import { Confirm, Problems, SavedNote, Section, rowClass, useAction } from './shared';
+import { Confirm, Problems, SavedNote, Section, rowClass, useAction } from '../parts';
 
 function PersonRow({ person, symbol, onChanged }: { person: Person; symbol: string; onChanged(): Promise<void> }) {
   const [name, setName] = useState(person.name);

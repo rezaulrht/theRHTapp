@@ -6,7 +6,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { channelName } from '../notifications/TestReminder';
 import { SaveBar } from '../SaveBar';
 import { useSettingsDraft } from '../useSettingsDraft';
-import { Section } from './shared';
+import { Section } from '../parts';
 
 /** The budget warning level and the evening nudge to write the day down. */
 export function MoneyPreferences() {

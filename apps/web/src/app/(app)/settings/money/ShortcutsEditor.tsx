@@ -3,7 +3,7 @@
 import { Button, Field, Select } from '@pa/ui';
 import { useState, type FormEvent } from 'react';
 import { money, paisaToInput, toPaisa, type Account, type Category, type Shortcut } from '@/lib/money';
-import { Confirm, MoveButtons, Problems, SavedNote, Section, moved, rowClass, useAction } from './shared';
+import { Confirm, MoveButtons, Problems, SavedNote, Section, moved, rowClass, useAction } from '../parts';
 
 interface Choices {
   accounts: Account[];
