@@ -38,7 +38,8 @@ describe('delivery, test reminder and export', () => {
   let cookie: string;
   const push = new FakePush();
   const email = new FakeEmail();
-  const habits: ExportContributor = { key: 'habits', export: async () => [{ name: 'Fajr' }] };
+  // A made-up section, to show that whatever registers is included.
+  const extra: ExportContributor = { key: 'vault', export: async () => [{ name: 'Lecture notes' }] };
   const http = () => request(app.getHttpServer());
   const authed = (method: 'get' | 'post' | 'patch' | 'delete', url: string) =>
     http()[method](url).set('Cookie', cookie);
@@ -57,7 +58,7 @@ describe('delivery, test reminder and export', () => {
         .overrideProvider(EMAIL_CLIENT)
         .useValue(email)
         .overrideProvider(EXPORT_CONTRIBUTORS)
-        .useValue([habits]),
+        .useValue([extra]),
     );
     prisma = app.get(PrismaService);
   });
@@ -238,7 +239,7 @@ describe('delivery, test reminder and export', () => {
       expect(res.body.settings['general.timezone']).toBe('Asia/Karachi');
       expect(res.body.reminders).toHaveLength(1);
       expect(res.body.reminders[0].title).toBe('Test reminder');
-      expect(res.body.habits).toEqual([{ name: 'Fajr' }]);
+      expect(res.body.vault).toEqual([{ name: 'Lecture notes' }]);
       expect(typeof res.body.exportedAt).toBe('string');
       const text = JSON.stringify(res.body);
       for (const secret of ['passwordHash', 'tokenHash', 'p256dh', 'auth-secret-1', 'argon2']) {
