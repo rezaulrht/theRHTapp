@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { defaultSettings, parseSettingsPatch, settingsSchema } from './settings';
+import { defaultSettings, parseSettingsPatch, PRAYER_METHODS, settingsSchema } from './settings';
 
 describe('settings', () => {
   it('defaults are valid', () => {
@@ -83,5 +83,44 @@ describe('money settings', () => {
   it('accepts a reminder with no channels', () => {
     const base = defaultSettings['money.dailyReminder'];
     expect(parseSettingsPatch(defaultSettings, { 'money.dailyReminder': { ...base, channels: [] } }).ok).toBe(true);
+  });
+});
+
+describe('habits settings', () => {
+  it('have valid defaults', () => {
+    expect(settingsSchema.safeParse(defaultSettings).success).toBe(true);
+    expect(defaultSettings['habits.lateShare']).toBe(0.5);
+    expect(defaultSettings['habits.missMultiplier']).toBe(1.5);
+    expect(defaultSettings['habits.dayEndHour']).toBe(4);
+    expect(defaultSettings['habits.dailyTargetPercent']).toBe(70);
+    expect(defaultSettings['habits.warnLeadMinutes']).toBe(10);
+    expect(defaultSettings['habits.prayer']).toEqual({ method: 'Karachi', asr: 'hanafi' });
+    expect(defaultSettings['habits.daySummary']).toEqual({ enabled: false, time: '22:30', channels: ['push'] });
+    expect(PRAYER_METHODS).toContain('MuslimWorldLeague');
+  });
+
+  it.each([
+    [{ 'habits.lateShare': 1.2 }, 'habits.lateShare'],
+    [{ 'habits.missMultiplier': 6 }, 'habits.missMultiplier'],
+    [{ 'habits.dayEndHour': 9 }, 'habits.dayEndHour'],
+    [{ 'habits.dayEndHour': 3.5 }, 'habits.dayEndHour'],
+    [{ 'habits.dailyTargetPercent': 0 }, 'habits.dailyTargetPercent'],
+    [{ 'habits.warnLeadMinutes': 0 }, 'habits.warnLeadMinutes'],
+    [{ 'habits.prayer': { method: 'Nope', asr: 'hanafi' } }, 'habits.prayer.method'],
+    [{ 'habits.prayer': { method: 'Karachi', asr: 'other' } }, 'habits.prayer.asr'],
+    [{ 'habits.daySummary': { enabled: true, time: '10pm', channels: ['push'] } }, 'habits.daySummary.time'],
+  ])('refuses %j at %s', (patch, path) => {
+    const result = parseSettingsPatch(defaultSettings, patch);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errors[0]!.path).toBe(path);
+      expect(result.errors[0]!.message.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('changes one habits setting and leaves the rest alone', () => {
+    const result = parseSettingsPatch(defaultSettings, { 'habits.lateShare': 0.8 });
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.value).toEqual({ ...defaultSettings, 'habits.lateShare': 0.8 });
   });
 });

@@ -14,6 +14,23 @@ export const CHANNELS = ['push', 'email'] as const;
 export type Channel = (typeof CHANNELS)[number];
 export const channelSchema = z.enum(CHANNELS);
 
+/** Prayer time calculation methods offered, as named by the adhan library. */
+export const PRAYER_METHODS = [
+  'Karachi',
+  'MuslimWorldLeague',
+  'Egyptian',
+  'UmmAlQura',
+  'Dubai',
+  'MoonsightingCommittee',
+  'NorthAmerica',
+  'Kuwait',
+  'Qatar',
+  'Singapore',
+  'Tehran',
+  'Turkey',
+] as const;
+export type PrayerMethod = (typeof PRAYER_METHODS)[number];
+
 const dayTypeSchema = z.object({
   id: z.string().min(1, 'A day type needs an id'),
   name: z.string().min(1, 'A day type needs a name'),
@@ -61,6 +78,26 @@ export const settingsSchema = z
       /** Do not send it on a day that already has an entry. */
       skipIfLogged: z.boolean(),
     }),
+    /** The share of an item's points kept when it is done late. */
+    'habits.lateShare': z.number('Enter a number').min(0, 'Use a share from 0 to 1').max(1, 'Use a share from 0 to 1'),
+    /** A missed item costs its points times this. */
+    'habits.missMultiplier': z.number('Enter a number').min(0, 'Use a number from 0 to 5').max(5, 'Use a number from 0 to 5'),
+    /** The hour the habit day ends, so a late night still counts for the day before. */
+    'habits.dayEndHour': z.number('Enter an hour').int('Use a whole hour').min(0, 'Use an hour from 0 to 8').max(8, 'Use an hour from 0 to 8'),
+    /** The share of a day's possible points that wins the day. */
+    'habits.dailyTargetPercent': z.number('Enter a percentage').int('Use a whole number').min(1, 'Use 1 to 100').max(100, 'Use 1 to 100'),
+    /** How long before a window closes the warning is sent. */
+    'habits.warnLeadMinutes': z.number('Enter minutes').int('Use whole minutes').min(1, 'Use 1 to 120 minutes').max(120, 'Use 1 to 120 minutes'),
+    'habits.prayer': z.object({
+      method: z.enum(PRAYER_METHODS, 'Pick a calculation method'),
+      asr: z.enum(['hanafi', 'standard'], 'Pick an Asr rule'),
+    }),
+    /** An optional evening message with the score and what was lost. */
+    'habits.daySummary': z.object({
+      enabled: z.boolean(),
+      time: timeOfDaySchema,
+      channels: z.array(channelSchema),
+    }),
   })
   .superRefine((settings, ctx) => {
     const ids = settings['general.dayTypes'].map((d) => d.id);
@@ -107,6 +144,13 @@ export const defaultSettings: Settings = {
   'general.quietHours': { enabled: false, start: '23:30', end: '05:00' },
   'money.budgetWarnPercent': 80,
   'money.dailyReminder': { enabled: true, time: '21:00', channels: ['push'], skipIfLogged: true },
+  'habits.lateShare': 0.5,
+  'habits.missMultiplier': 1.5,
+  'habits.dayEndHour': 4,
+  'habits.dailyTargetPercent': 70,
+  'habits.warnLeadMinutes': 10,
+  'habits.prayer': { method: 'Karachi', asr: 'hanafi' },
+  'habits.daySummary': { enabled: false, time: '22:30', channels: ['push'] },
 };
 
 export interface SettingsError {
