@@ -88,6 +88,8 @@ type Listener = () => Promise<void> | void;
 export class ItemsService {
   private readonly logger = new Logger(ItemsService.name);
   private readonly listeners: Listener[] = [];
+  /** The time now. The days service shares its own clock, so both agree in tests. */
+  clock: () => Date = () => new Date();
 
   constructor(
     private readonly prisma: PrismaService,
@@ -148,6 +150,7 @@ export class ItemsService {
         reminders: input.reminders,
         ignoreQuietHours: input.ignoreQuietHours ?? false,
         sortOrder: (last._max.sortOrder ?? -1) + 1,
+        createdAt: this.clock(),
       },
     });
     await this.changed();
@@ -162,7 +165,7 @@ export class ItemsService {
       where: { id },
       data: {
         ...fields,
-        pausedAt: paused === undefined ? undefined : paused ? (existing.pausedAt ?? new Date()) : null,
+        pausedAt: paused === undefined ? undefined : paused ? (existing.pausedAt ?? this.clock()) : null,
       },
     });
     await this.changed();
@@ -172,7 +175,7 @@ export class ItemsService {
   /** Takes an item off the routine. Days it was already part of keep their copy. */
   async archive(id: string): Promise<void> {
     await this.find(id);
-    await this.prisma.habitItem.update({ where: { id }, data: { archivedAt: new Date() } });
+    await this.prisma.habitItem.update({ where: { id }, data: { archivedAt: this.clock() } });
     await this.changed();
   }
 

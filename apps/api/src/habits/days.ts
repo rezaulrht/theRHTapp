@@ -109,6 +109,7 @@ export class DaysService implements OnModuleInit {
   ) {}
 
   onModuleInit(): void {
+    this.items.clock = () => this.clock();
     this.items.onChanged(() => this.refreshToday());
     this.settings.onChange(async (changed) => {
       if (changed.some((key) => key.startsWith('habits.') || DAY_SETTINGS.includes(key))) await this.refreshToday();
