@@ -1,6 +1,5 @@
 'use client';
 
-import { CATEGORY_COLORS } from '@pa/shared/categories';
 import { Amount, Button } from '@pa/ui';
 import { motion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -11,8 +10,9 @@ import { Sheet } from '@/components/Sheet';
 import { money, type Account, type Category, type DayReport, type Entry, type Shortcut } from '@/lib/money';
 import { addDays, dayLabel, formatMoney, todayInZone } from '@/lib/money-text';
 import { BalanceStrip } from './BalanceStrip';
-import { DeleteEntry, EntrySummary } from './EntryDetails';
 import { EntryForm } from './EntryForm';
+import { EntryRow } from './EntryRow';
+import { EntrySheet } from './EntrySheet';
 import { FixBalanceForm } from './FixBalanceForm';
 import { ShortcutBar } from './ShortcutBar';
 
@@ -22,11 +22,6 @@ type SheetState =
   | { mode: 'add'; preset?: { name: string; amount: number; accountId: string; categoryId: string } }
   | { mode: 'edit'; entry: Entry }
   | { mode: 'fix' };
-
-/** Kinds the entry form can edit. Loans, corrections and fees are shown, not edited, here. */
-function editableInForm(entry: Entry): boolean {
-  return entry.feeOfId === null && (entry.kind === 'expense' || entry.kind === 'income' || entry.kind === 'transfer');
-}
 
 /** The notebook page for one day: balances, shortcuts, the day's total and its entries. */
 export function DayView() {
@@ -219,13 +214,6 @@ export function DayView() {
       ) : (
         <ul aria-label="Entries" className="border-t border-hairline">
           {report.entries.map((entry, index) => {
-            const itsCategory = entry.categoryId ? category.get(entry.categoryId) : undefined;
-            const dot = itsCategory
-              ? CATEGORY_COLORS[itsCategory.color as keyof typeof CATEGORY_COLORS]
-              : 'var(--color-sage)';
-            const incoming =
-              entry.kind === 'income' ||
-              (entry.kind === 'loan' && (entry.loanDirection === 'borrowed' || entry.loanDirection === 'repaid_to_me'));
             return (
               <motion.li
                 key={entry.id}
@@ -234,30 +222,13 @@ export function DayView() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: EASE_OUT, delay: Math.min(index, 8) * 0.04 }}
               >
-                <button
-                  type="button"
-                  onClick={() => setSheet({ mode: 'edit', entry })}
-                  className="grid w-full grid-cols-[auto_1fr_auto] items-center gap-x-3 py-3.5 text-left transition-colors duration-150 hover:bg-ivory/[0.03]"
-                >
-                  <span aria-hidden="true" className="size-2.5 rounded-full" style={{ background: dot }} />
-                  <span className="min-w-0">
-                    <span data-entry-name className="block truncate text-ivory">
-                      {entry.name}
-                    </span>
-                    <span className="flex gap-2 text-sm text-sage">
-                      <span>{accountName.get(entry.accountId) ?? 'Account'}</span>
-                      {itsCategory ? <span className="opacity-70">{itsCategory.name}</span> : null}
-                    </span>
-                  </span>
-                  <span
-                    className={`font-display text-lg tabular-nums ${
-                      incoming ? 'text-brass' : entry.kind === 'transfer' || entry.kind === 'correction' ? 'text-sage' : 'text-ivory'
-                    }`}
-                  >
-                    {incoming ? '+' : ''}
-                    {formatMoney(entry.amount, symbol)}
-                  </span>
-                </button>
+                <EntryRow
+                  entry={entry}
+                  accountName={accountName.get(entry.accountId) ?? 'Account'}
+                  category={entry.categoryId ? category.get(entry.categoryId) : undefined}
+                  symbol={symbol}
+                  onOpen={() => setSheet({ mode: 'edit', entry })}
+                />
               </motion.li>
             );
           })}
@@ -286,22 +257,15 @@ export function DayView() {
       ) : null}
 
       {sheet?.mode === 'edit' ? (
-        <Sheet title={editableInForm(sheet.entry) ? 'Edit entry' : sheet.entry.name} onClose={closeSheet}>
-          {editableInForm(sheet.entry) ? (
-            <EntryForm
-              accounts={accounts}
-              categories={categories}
-              initial={sheet.entry}
-              defaultDate={sheet.entry.date}
-              maxDate={today}
-              onSaved={afterChange}
-              onCancel={closeSheet}
-            />
-          ) : (
-            <EntrySummary entry={sheet.entry} symbol={symbol} />
-          )}
-          <DeleteEntry entry={sheet.entry} onDeleted={afterChange} />
-        </Sheet>
+        <EntrySheet
+          entry={sheet.entry}
+          accounts={accounts}
+          categories={categories}
+          symbol={symbol}
+          today={today}
+          onClose={closeSheet}
+          onChanged={afterChange}
+        />
       ) : null}
 
       {sheet?.mode === 'fix' ? (

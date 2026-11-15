@@ -7,7 +7,7 @@ import { dayLabel, formatMoney } from '@/lib/money-text';
 
 const WHY_NOT_EDITABLE: Partial<Record<Entry['kind'], string>> = {
   correction: 'A balance correction cannot be changed. Delete it and fix the balance again if it was wrong.',
-  loan: 'Change loans from the Loans page. Delete this one here if it was a mistake.',
+  loan: 'A loan cannot be changed here. If it was wrong, delete it and record it again on the Loans page.',
 };
 
 /** What an entry is, shown when it cannot be edited in the form (a fee, a correction, a loan). */

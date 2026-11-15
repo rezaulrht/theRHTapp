@@ -91,3 +91,34 @@ export function owedText(name: string, owed: number, symbol: string): string {
     ? `${name} owes you ${formatMoney(owed, symbol)}`
     : `You owe ${name} ${formatMoney(-owed, symbol)}`;
 }
+
+/** "13 Nov" for a calendar day, for lists that span a month. */
+export function shortDay(day: string): string {
+  return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(
+    new Date(`${day}T00:00:00Z`),
+  );
+}
+
+/** The last calendar day of 'YYYY-MM'. */
+export function lastDayOfMonth(month: string): string {
+  return addDays(`${addMonths(month, 1)}-01`, -1);
+}
+
+/** "Workday: ৳310 a day over 22 days". */
+export function dayTypeText(name: string, average: number, days: number, symbol: string): string {
+  return `${name}: ${formatMoney(Math.round(average), symbol)} a day over ${days} ${days === 1 ? 'day' : 'days'}`;
+}
+
+/** One category against the month before: "৳500 more than October". Empty with nothing to compare. */
+export function categoryChangeText(
+  spent: number,
+  previous: number | null,
+  previousMonthName: string,
+  symbol: string,
+): string {
+  if (previous === null) return '';
+  if (previous === 0) return spent === 0 ? '' : `Nothing in ${previousMonthName}`;
+  const change = spent - previous;
+  if (change === 0) return `Same as ${previousMonthName}`;
+  return `${formatMoney(Math.abs(change), symbol)} ${change < 0 ? 'less' : 'more'} than ${previousMonthName}`;
+}

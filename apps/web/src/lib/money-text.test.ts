@@ -96,3 +96,28 @@ describe('owedText', () => {
     expect(owedText('Rahim', 0, '৳')).toBe('Settled with Rahim');
   });
 });
+
+describe('month wording', () => {
+  it('knows the last day of a month, leap years included', async () => {
+    const { lastDayOfMonth, shortDay } = await import('./money-text');
+    expect(lastDayOfMonth('2026-11')).toBe('2026-11-30');
+    expect(lastDayOfMonth('2028-02')).toBe('2028-02-29');
+    expect(lastDayOfMonth('2026-12')).toBe('2026-12-31');
+    expect(shortDay('2026-11-13')).toBe('13 Nov');
+  });
+
+  it('says what a kind of day costs', async () => {
+    const { dayTypeText } = await import('./money-text');
+    expect(dayTypeText('Workday', 31000, 22, '৳')).toBe('Workday: ৳310 a day over 22 days');
+    expect(dayTypeText('Class day', 12050.4, 1, '৳')).toBe('Class day: ৳120.50 a day over 1 day');
+  });
+
+  it('compares one category with the month before', async () => {
+    const { categoryChangeText } = await import('./money-text');
+    expect(categoryChangeText(150000, 100000, 'October', '৳')).toBe('৳500 more than October');
+    expect(categoryChangeText(80000, 100000, 'October', '৳')).toBe('৳200 less than October');
+    expect(categoryChangeText(80000, 80000, 'October', '৳')).toBe('Same as October');
+    expect(categoryChangeText(20000, 0, 'October', '৳')).toBe('Nothing in October');
+    expect(categoryChangeText(20000, null, 'October', '৳')).toBe('');
+  });
+});
