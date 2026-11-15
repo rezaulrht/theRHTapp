@@ -3,17 +3,8 @@
 import { Button, Field, Select } from '@pa/ui';
 import { useState, type FormEvent } from 'react';
 import { ApiError } from '@/lib/api';
-import { money, toPaisa, type Account } from '@/lib/money';
+import { money, toBalancePaisa, type Account } from '@/lib/money';
 import { formatMoney } from '@/lib/money-text';
-
-/** A balance as typed, allowing zero and a minus sign for an overdrawn account. */
-function readBalance(text: string): { ok: true; paisa: number } | { ok: false; message: string } {
-  const trimmed = text.trim();
-  if (/^-?0*(\.0*)?$/.test(trimmed) && /0/.test(trimmed)) return { ok: true, paisa: 0 };
-  const negative = trimmed.startsWith('-');
-  const parsed = toPaisa(negative ? trimmed.slice(1) : trimmed);
-  return parsed.ok ? { ok: true, paisa: negative ? -parsed.paisa : parsed.paisa } : parsed;
-}
 
 /**
  * When the app and the wallet disagree: enter what is really there and the
@@ -42,7 +33,7 @@ export function FixBalanceForm({
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (busy) return;
-    const parsed = readBalance(balance);
+    const parsed = toBalancePaisa(balance);
     if (!parsed.ok) {
       setError(parsed.message);
       return;

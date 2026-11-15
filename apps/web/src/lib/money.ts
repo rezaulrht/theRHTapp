@@ -18,6 +18,15 @@ export function paisaToInput(paisa: number): string {
   return paisa % 100 === 0 ? String(paisa / 100) : (paisa / 100).toFixed(2);
 }
 
+/** A balance as typed, allowing zero and a minus sign for an overdrawn account. */
+export function toBalancePaisa(text: string): ParsedAmount {
+  const trimmed = text.trim();
+  if (/^-?0*(.0*)?$/.test(trimmed) && /0/.test(trimmed)) return { ok: true, paisa: 0 };
+  const negative = trimmed.startsWith('-');
+  const parsed = parseAmount(negative ? trimmed.slice(1) : trimmed);
+  return parsed.ok ? { ok: true, paisa: negative ? -parsed.paisa : parsed.paisa } : parsed;
+}
+
 export type EntryKind = 'expense' | 'income' | 'transfer' | 'correction' | 'loan';
 export type LoanDirection = 'lent' | 'borrowed' | 'repaid_to_me' | 'repaid_by_me';
 export type BudgetState = 'ok' | 'warning' | 'over';
