@@ -3,7 +3,15 @@
 One person's daily-life tools: Money, Habits and Vault, in one installable web
 app. Design documents are in [docs/superpowers/specs](docs/superpowers/specs).
 
-Built so far: the foundation (login, settings, reminders, installable app).
+Built so far:
+
+- The foundation: login, settings, reminders, installable app.
+- Money: the day page (balances, one-tap shortcuts, entries, fix a balance), the month page
+  (categories against last month, budgets, cost by kind of day, a filterable list), loans,
+  budget warnings, a daily reminder to log spending, a CSV download, and every list editable
+  under Settings, Money.
+
+Habits and Vault come next.
 
 ## Layout
 
