@@ -12,34 +12,7 @@ export const LOAN_DIRECTIONS = ['lent', 'borrowed', 'repaid_to_me', 'repaid_by_m
 
 export { MAX_AMOUNT, parseAmount, type ParsedAmount } from './amount';
 
-/** Colours a category can take. All read clearly on the green ground. */
-export const CATEGORY_COLORS = {
-  brass: '#c8a662',
-  coral: '#e8795f',
-  sky: '#7fb7d9',
-  sage: '#9fb3a8',
-  rose: '#d98fa6',
-  lilac: '#a99bd6',
-  mint: '#7fd1ae',
-  sand: '#d9c7a0',
-} as const;
-export type CategoryColor = keyof typeof CATEGORY_COLORS;
-
-export const CATEGORY_ICONS = [
-  'bus',
-  'food',
-  'book',
-  'bill',
-  'fee',
-  'bag',
-  'home',
-  'health',
-  'phone',
-  'gift',
-  'coffee',
-  'dot',
-] as const;
-export type CategoryIcon = (typeof CATEGORY_ICONS)[number];
+export { CATEGORY_COLORS, CATEGORY_ICONS, type CategoryColor, type CategoryIcon } from './categories';
 
 /**
  * An entry as the maths needs it. `amount` is always positive. `accountDelta`

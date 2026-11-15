@@ -18,8 +18,9 @@ export function formatAmount(value: number, currency = ''): string {
   const number = new Intl.NumberFormat('en-US', {
     minimumFractionDigits: fraction,
     maximumFractionDigits: 2,
-  }).format(value);
-  return `${currency}${number}`;
+  }).format(Math.abs(value));
+  // The minus goes before the symbol: −৳80, not ৳-80.
+  return `${value < 0 ? '−' : ''}${currency}${number}`;
 }
 
 function prefersReducedMotion(): boolean {

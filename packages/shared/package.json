@@ -28,6 +28,10 @@
     "./amount": {
       "types": "./dist/amount.d.ts",
       "default": "./dist/amount.js"
+    },
+    "./categories": {
+      "types": "./dist/categories.d.ts",
+      "default": "./dist/categories.js"
     }
   }
 }

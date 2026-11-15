@@ -103,6 +103,12 @@ describe('Amount', () => {
     expect(screen.getByText('৳235')).toBeInTheDocument();
   });
 
+  it('puts the minus before the symbol', () => {
+    setReducedMotion(false);
+    render(<Amount value={-80} currency="৳" />);
+    expect(screen.getByText('−৳80')).toBeInTheDocument();
+  });
+
   it('keeps paisa when there are any', () => {
     setReducedMotion(false);
     render(<Amount value={12.5} />);

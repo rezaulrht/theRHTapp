@@ -298,6 +298,28 @@ describe('EntryForm', () => {
     });
   });
 
+  it('a shortcut pre-fills a new expense, which is still added, not edited', async () => {
+    const calls = mockApi({
+      'GET /api/money/entries/names': noSuggestions,
+      'POST /api/money/entries': () => ({ status: 201, body: saved }),
+    });
+    const { onSaved } = renderForm({
+      preset: { name: 'Office rickshaw', amount: 8000, accountId: 'cash', categoryId: 'travel' },
+    });
+    expect(screen.getByLabelText('Amount')).toHaveValue('80');
+    expect(screen.getByLabelText('What was it for?')).toHaveValue('Office rickshaw');
+
+    await userEvent.clear(screen.getByLabelText('Amount'));
+    await userEvent.type(screen.getByLabelText('Amount'), '100');
+    await userEvent.click(screen.getByRole('button', { name: 'Add expense' }));
+
+    await waitFor(() => expect(onSaved).toHaveBeenCalled());
+    expect(posts(calls)[0]).toMatchObject({
+      key: 'POST /api/money/entries',
+      body: { kind: 'expense', amount: 10000, name: 'Office rickshaw', accountId: 'cash', categoryId: 'travel' },
+    });
+  });
+
   it('shows a server error beside the field it names', async () => {
     mockApi({
       'GET /api/money/entries/names': noSuggestions,

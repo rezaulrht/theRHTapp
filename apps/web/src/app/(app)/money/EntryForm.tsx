@@ -21,8 +21,12 @@ export interface EntryFormProps {
   categories: Category[];
   /** An entry to edit. Leave out to add a new one. */
   initial?: Entry;
-  /** Today in the owner's time zone, 'YYYY-MM-DD'. Also the latest date allowed. */
+  /** Starting values for a new entry, such as a shortcut whose amount is being changed. */
+  preset?: { name: string; amount: number; accountId: string; categoryId: string };
+  /** The date a new entry starts on, 'YYYY-MM-DD'. */
   defaultDate: string;
+  /** The latest date allowed: today in the owner's time zone. Defaults to `defaultDate`. */
+  maxDate?: string;
   onSaved(entry: Entry): void;
   onCancel(): void;
 }
@@ -50,21 +54,34 @@ function lastAccount(): string | null {
 }
 
 /** The form for adding or editing an expense, income or transfer. */
-export function EntryForm({ accounts, categories, initial, defaultDate, onSaved, onCancel }: EntryFormProps) {
+export function EntryForm({
+  accounts,
+  categories,
+  initial,
+  preset,
+  defaultDate,
+  maxDate = defaultDate,
+  onSaved,
+  onCancel,
+}: EntryFormProps) {
   const editing = initial !== undefined;
   const activeAccounts = accounts.filter((account) => !account.archived);
   const firstAccount =
     activeAccounts.find((account) => account.id === lastAccount())?.id ?? activeAccounts[0]?.id ?? '';
 
   const [kind, setKind] = useState<FormKind>((initial?.kind as FormKind | undefined) ?? 'expense');
-  const [amount, setAmount] = useState(initial ? paisaToInput(initial.amount) : '');
-  const [name, setName] = useState(initial?.name ?? '');
-  const [accountId, setAccountId] = useState(initial?.accountId ?? firstAccount);
+  const [amount, setAmount] = useState(
+    initial ? paisaToInput(initial.amount) : preset ? paisaToInput(preset.amount) : '',
+  );
+  const [name, setName] = useState(initial?.name ?? preset?.name ?? '');
+  const [accountId, setAccountId] = useState(initial?.accountId ?? preset?.accountId ?? firstAccount);
   const [toAccountId, setToAccountId] = useState(
     initial?.toAccountId ?? activeAccounts.find((account) => account.id !== firstAccount)?.id ?? '',
   );
   const [categoryId, setCategoryId] = useState(
-    initial?.categoryId ?? categories.find((category) => !category.archived && !category.isFees)?.id ?? '',
+    initial?.categoryId ??
+      preset?.categoryId ??
+      categories.find((category) => !category.archived && !category.isFees)?.id ?? '',
   );
   const [fee, setFee] = useState(initial?.fee ? paisaToInput(initial.fee.amount) : '');
   const [date, setDate] = useState(initial?.date ?? defaultDate);
@@ -86,7 +103,7 @@ export function EntryForm({ accounts, categories, initial, defaultDate, onSaved,
 
   // Past names that match what is being typed, each with the account and category it last used.
   useEffect(() => {
-    if (kind !== 'expense' || name.trim() === '' || name === initial?.name) {
+    if (kind !== 'expense' || name.trim() === '' || name === initial?.name || name === preset?.name) {
       setSuggestions([]);
       return;
     }
@@ -98,7 +115,7 @@ export function EntryForm({ accounts, categories, initial, defaultDate, onSaved,
         if (lookup === latestLookup.current) setSuggestions(found.filter((item) => item.name !== name));
       })
       .catch(() => {});
-  }, [kind, name, initial?.name]);
+  }, [kind, name, initial?.name, preset?.name]);
 
   function pick(suggestion: NameSuggestion) {
     setName(suggestion.name);
@@ -294,7 +311,7 @@ export function EntryForm({ accounts, categories, initial, defaultDate, onSaved,
         <Field
           label="Date"
           type="date"
-          max={defaultDate}
+          max={maxDate}
           value={date}
           onChange={(event) => setDate(event.target.value)}
           error={errors.date}
