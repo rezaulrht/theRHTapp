@@ -16,7 +16,16 @@ Built so far:
   end-of-day summary, weekly and monthly progress with the weakest items and streaks, and the
   whole routine and its scoring rules editable under Settings, Habits.
 
-Vault comes next.
+- Vault: folders inside folders named however you like, holding files, markdown notes and
+  links; uploads of several files at once (drag and drop on a computer); PDFs, images,
+  markdown and text open in the app, other files download; your own fields and tags on
+  anything, with sorting, filtering and one search across names, notes, links, tags and
+  field values; to-do lists, reminders, a calendar of everything dated, pins and recent
+  items, and a trash that keeps things for 30 days. Files are kept in Cloudflare R2 once
+  its keys are set (see `docs/setup/accounts.md`, step 9), and in `.localfiles/` on your own
+  computer until then.
+
+All three apps are built.
 
 ## Layout
 
