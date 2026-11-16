@@ -9,9 +9,10 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import type { Prisma, VaultFolder, VaultItem, VaultTodo } from '@pa/db';
-import { wouldCreateLoop } from '@pa/shared';
+import { compareByField, FILTER_OPS, matchesFilters, wouldCreateLoop, type FieldDef, type FieldFilter, type FieldType } from '@pa/shared';
 import { z } from 'zod';
 import { fieldError, fromDbDate } from '../money/common';
 import { PrismaService } from '../prisma/prisma.service';
@@ -33,6 +34,7 @@ export interface FolderJson {
   /** From the top level down to this folder, itself included. */
   path: PathStep[];
   values: Record<string, unknown>;
+  updatedAt: string;
 }
 
 export interface ItemJson {
@@ -71,6 +73,13 @@ export type ItemRow = VaultItem & Prisma.VaultItemGetPayload<{ include: typeof I
 type FolderRow = VaultFolder & { values?: { fieldId: string; value: unknown }[] };
 
 const EXCERPT = 160;
+
+export interface ListOptions {
+  filters: FieldFilter[];
+  /** The owner's own order when not given. */
+  sort?: 'name' | 'updated' | `field:${string}`;
+  descending: boolean;
+}
 export const MAX_NOTE = 1_000_000;
 
 export const vaultNameSchema = z.string('Enter a name').trim().min(1, 'Enter a name').max(200, 'Use a shorter name');
@@ -128,6 +137,27 @@ export function todoToJson(row: VaultTodo): TodoJson {
     done: row.doneAt !== null,
     sortOrder: row.sortOrder,
   };
+}
+
+/** Filters and sorts a listing by field values, name or last change. */
+function arrange<T extends { name: string; values: Record<string, unknown>; updatedAt?: string }>(
+  list: T[],
+  options: ListOptions,
+  defs: FieldDef[],
+): T[] {
+  const kept = list.filter((entry) => matchesFilters(entry.values, options.filters, defs));
+  if (!options.sort) return kept;
+  const field = options.sort.startsWith('field:') ? defs.find((def) => `field:${def.id}` === options.sort) : undefined;
+  const compare = (a: T, b: T): number => {
+    if (options.sort === 'name') return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
+    if (options.sort === 'updated') return (a.updatedAt ?? '').localeCompare(b.updatedAt ?? '');
+    return field ? compareByField(a.values, b.values, field) : 0;
+  };
+  const sorted = [...kept].sort(compare);
+  if (!options.descending) return sorted;
+  // Things with no value for the sort field stay at the end either way.
+  const missing = field ? sorted.filter((entry) => entry.values[field.id] === undefined) : [];
+  return [...sorted.filter((entry) => !missing.includes(entry)).reverse(), ...missing];
 }
 
 /** Each folder's parent and name, for building paths and checking moves. */
@@ -197,6 +227,7 @@ export class FoldersService {
       pinned: row.pinnedAt !== null,
       path: map.path(row.id),
       values: valuesOf(row.values),
+      updatedAt: row.updatedAt.toISOString(),
     };
   }
 
@@ -254,7 +285,10 @@ export class FoldersService {
   }
 
   /** A folder's contents. `id` null is the top level. */
-  async open(id: string | null): Promise<{ folder: FolderJson | null; folders: FolderJson[]; items: ItemJson[]; todos: TodoJson[] }> {
+  async open(
+    id: string | null,
+    options: ListOptions = { filters: [], descending: false },
+  ): Promise<{ folder: FolderJson | null; folders: FolderJson[]; items: ItemJson[]; todos: TodoJson[] }> {
     if (id !== null) {
       await this.liveFolder(id);
       await this.prisma.vaultFolder.update({ where: { id }, data: { openedAt: this.clock() } });
@@ -276,12 +310,21 @@ export class FoldersService {
         ? []
         : this.prisma.vaultTodo.findMany({ where: { folderId: id }, orderBy: [{ doneAt: { sort: 'asc', nulls: 'first' } }, { sortOrder: 'asc' }, { createdAt: 'asc' }] }),
     ]);
-    return {
-      folder: folder ? this.folderJson(folder, map) : null,
+    const listed = {
       folders: folders.map((row) => this.folderJson(row, map)),
       items: items.map((row) => this.itemJson(row, map)),
-      todos: todos.map(todoToJson),
     };
+    if (options.filters.length > 0 || options.sort) {
+      const defs: FieldDef[] = (await this.prisma.vaultField.findMany()).map((row) => ({
+        id: row.id,
+        name: row.name,
+        type: row.type as FieldType,
+        choices: row.choices,
+      }));
+      listed.folders = arrange(listed.folders, options, defs);
+      listed.items = arrange(listed.items, options, defs);
+    }
+    return { folder: folder ? this.folderJson(folder, map) : null, ...listed, todos: todos.map(todoToJson) };
   }
 
   async createFolder(parentId: string | null, name: string): Promise<FolderJson> {
@@ -418,6 +461,34 @@ export class FoldersService {
 
 const folderId = (id: string): string | null => (id === ROOT ? null : id);
 
+const filterSchema = z.array(
+  z.object({
+    fieldId: z.string().min(1),
+    op: z.enum(FILTER_OPS),
+    value: z.union([z.string(), z.number(), z.boolean()]).optional(),
+  }),
+);
+
+/** Reads ?filter=<json>&sort=&dir= from a folder address. */
+export function listOptions(filter?: string, sort?: string, dir?: string): ListOptions {
+  let filters: FieldFilter[] = [];
+  if (filter) {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(filter);
+    } catch {
+      throw fieldError('filter', 'That filter is not readable');
+    }
+    const result = filterSchema.safeParse(parsed);
+    if (!result.success) throw fieldError('filter', 'That filter is not readable');
+    filters = result.data;
+  }
+  if (sort !== undefined && sort !== 'name' && sort !== 'updated' && !sort.startsWith('field:')) {
+    throw fieldError('sort', 'Sort by name, updated or a field');
+  }
+  return { filters, sort: sort as ListOptions['sort'], descending: dir === 'desc' };
+}
+
 @Controller('vault')
 export class FoldersController {
   constructor(private readonly folders: FoldersService) {}
@@ -428,8 +499,8 @@ export class FoldersController {
   }
 
   @Get('folders/:id')
-  open(@Param('id') id: string) {
-    return this.folders.open(folderId(id));
+  open(@Param('id') id: string, @Query('filter') filter?: string, @Query('sort') sort?: string, @Query('dir') dir?: string) {
+    return this.folders.open(folderId(id), listOptions(filter, sort, dir));
   }
 
   @Post('folders')

@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ENV, type Env } from '../env';
+import { FieldsController, FieldsService } from './fields';
 import { FilesController, FilesService } from './files';
 import { FoldersController, FoldersService } from './folders';
 import { FILE_STORAGE, type FileStorage, MissingStorage } from './storage/file-storage';
 import { LocalFilesController, LocalFileStorage } from './storage/local-storage';
 import { R2Storage } from './storage/r2-storage';
+import { SearchController, SearchService } from './search';
 
 /** R2 when its keys are set; files on disk in development; nothing in production until then. */
 function chooseStorage(env: Env, local: LocalFileStorage): FileStorage {
@@ -20,13 +22,15 @@ function chooseStorage(env: Env, local: LocalFileStorage): FileStorage {
 }
 
 @Module({
-  controllers: [FoldersController, FilesController, LocalFilesController],
+  controllers: [FoldersController, FilesController, FieldsController, SearchController, LocalFilesController],
   providers: [
     FoldersService,
     FilesService,
+    FieldsService,
+    SearchService,
     LocalFileStorage,
     { provide: FILE_STORAGE, useFactory: chooseStorage, inject: [ENV, LocalFileStorage] },
   ],
-  exports: [FoldersService, FilesService, FILE_STORAGE],
+  exports: [FoldersService, FilesService, FieldsService, FILE_STORAGE],
 })
 export class VaultModule {}
