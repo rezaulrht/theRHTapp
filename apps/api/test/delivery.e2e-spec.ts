@@ -39,7 +39,7 @@ describe('delivery, test reminder and export', () => {
   const push = new FakePush();
   const email = new FakeEmail();
   // A made-up section, to show that whatever registers is included.
-  const extra: ExportContributor = { key: 'vault', export: async () => [{ name: 'Lecture notes' }] };
+  const extra: ExportContributor = { key: 'madeUp', export: async () => [{ name: 'Lecture notes' }] };
   const http = () => request(app.getHttpServer());
   const authed = (method: 'get' | 'post' | 'patch' | 'delete', url: string) =>
     http()[method](url).set('Cookie', cookie);
@@ -239,7 +239,7 @@ describe('delivery, test reminder and export', () => {
       expect(res.body.settings['general.timezone']).toBe('Asia/Karachi');
       expect(res.body.reminders).toHaveLength(1);
       expect(res.body.reminders[0].title).toBe('Test reminder');
-      expect(res.body.vault).toEqual([{ name: 'Lecture notes' }]);
+      expect(res.body.madeUp).toEqual([{ name: 'Lecture notes' }]);
       expect(typeof res.body.exportedAt).toBe('string');
       const text = JSON.stringify(res.body);
       for (const secret of ['passwordHash', 'tokenHash', 'p256dh', 'auth-secret-1', 'argon2']) {
