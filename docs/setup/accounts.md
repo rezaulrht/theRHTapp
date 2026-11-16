@@ -6,7 +6,7 @@ into Heroku or Vercel. Keys never go into chat or into git.
 Prices and free allowances change. Check each provider's own site before you
 rely on a number here.
 
-Do the steps in order. R2 (file storage) is not needed until the Vault stage.
+Do the steps in order. R2 (file storage, step 9) can wait until you want to upload files.
 
 ## 1. GitHub
 
@@ -162,6 +162,39 @@ pnpm --filter api setup:owner --reset-password
 If the notification does not arrive: iOS needs version 16.4 or newer, and the
 app must be opened from the home screen icon, not from Safari.
 
+## 9. Cloudflare R2 (Vault files)
+
+Until this is done, the Vault works online for folders, notes and links, and
+refuses uploads with "File storage is not set up yet". On your own computer,
+files are kept in `.localfiles/` instead, so nothing here is needed to try it.
+
+1. Create a Cloudflare account, open **R2**, and create a bucket, for example
+   `personal-vault`. Leave public access **off**: files are only ever reached
+   through short-lived signed addresses the back end hands out.
+2. Under **R2 → Manage API tokens**, create a token with **Object Read & Write**
+   on that bucket only. Note the Access Key ID and Secret Access Key it shows
+   once, and your Account ID (shown on the R2 overview page).
+3. In the bucket's **Settings → CORS policy**, allow your front end to send and
+   fetch files directly:
+
+   ```json
+   [
+     {
+       "AllowedOrigins": ["https://YOUR-APP.vercel.app"],
+       "AllowedMethods": ["GET", "PUT"],
+       "AllowedHeaders": ["Content-Type"],
+       "MaxAgeSeconds": 3600
+     }
+   ]
+   ```
+
+   Use the exact address of your Vercel site, with no slash at the end.
+4. In Heroku, add the four config vars below (`R2_ACCOUNT_ID`,
+   `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`). The app restarts
+   and uploads start working.
+
+The free allowance is 10 GB of storage; Settings → Vault shows how much is used.
+
 ## Every variable in one place
 
 | Variable | Where | What it is |
@@ -173,9 +206,11 @@ app must be opened from the home screen icon, not from Safari.
 | `RESEND_API_KEY` | Heroku | Resend API key |
 | `EMAIL_FROM` | Heroku | Sender shown on reminder emails |
 | `WEB_ORIGIN` | Heroku | Public address of the front end, for links in emails |
+| `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` | Heroku | Cloudflare R2 bucket for Vault files |
 | `API_ORIGIN` | Vercel | Address of the back end |
 | `PORT` | Local only | Back end port, 4000 by default |
 | `DEV_OWNER_EMAIL`, `DEV_OWNER_PASSWORD` | Local only | Account for local development |
+| `LOCAL_FILES_DIR` | Local only | Where Vault files are kept without R2, `.localfiles` by default |
 
 ## When the Heroku credit ends
 

@@ -33,6 +33,13 @@ const envSchema = z
       .min(1)
       .transform((origin) => origin.replace(/\/+$/, ''))
       .optional(),
+    /** Cloudflare R2, where Vault files are kept. Without these, development keeps files on disk. */
+    R2_ACCOUNT_ID: optionalText,
+    R2_ACCESS_KEY_ID: optionalText,
+    R2_SECRET_ACCESS_KEY: optionalText,
+    R2_BUCKET: optionalText,
+    /** Development only: where files are kept when R2 is not set up. */
+    LOCAL_FILES_DIR: optionalText,
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV !== 'production') return;
