@@ -1,23 +1,14 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { InstallGuide } from '@/components/InstallGuide';
 import { Reveal } from '@/components/motion/Reveal';
-import { SpotlightPanel } from '@/components/motion/SpotlightPanel';
 import { FadeUp, Stagger, StaggerItem } from '@/components/motion/Stagger';
 import { useSettings } from '@/components/SettingsProvider';
 import { greetingFor, longDate } from '@/lib/today';
 import { TodayHabits } from './TodayHabits';
 import { TodayMoney } from './TodayMoney';
-
-const blocks = [
-  {
-    href: '/vault',
-    title: 'Vault',
-    text: 'Pinned folders and the reminders coming up.',
-  },
-];
+import { TodayVault } from './TodayVault';
 
 export function TodayView() {
   const { settings, loadError } = useSettings();
@@ -64,17 +55,9 @@ export function TodayView() {
         <StaggerItem className="h-full">
           <TodayHabits />
         </StaggerItem>
-        {blocks.map((block) => (
-          <StaggerItem key={block.href} className="h-full">
-            <Link href={block.href} className="block h-full rounded-[var(--radius-panel)]">
-              <SpotlightPanel className="h-full">
-                <h2 className="font-display text-2xl text-ivory">{block.title}</h2>
-                <p className="mt-2 text-sage">{block.text}</p>
-                <p className="mt-6 text-sm text-brass">Not built yet</p>
-              </SpotlightPanel>
-            </Link>
-          </StaggerItem>
-        ))}
+        <StaggerItem className="h-full">
+          <TodayVault />
+        </StaggerItem>
       </Stagger>
     </>
   );
