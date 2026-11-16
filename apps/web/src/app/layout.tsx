@@ -10,11 +10,11 @@ const bodoni = Bodoni_Moda({ subsets: ['latin'], variable: '--font-bodoni', disp
 const hanken = Hanken_Grotesk({ subsets: ['latin'], variable: '--font-hanken', display: 'swap' });
 
 export const metadata: Metadata = {
-  title: { default: 'Personal', template: '%s | Personal' },
+  title: { default: 'The R.H.T App', template: '%s | The R.H.T App' },
   description: 'Money, habits and files in one place.',
   icons: { icon: '/icons/icon-192.png', apple: '/icons/apple-touch-icon.png' },
   // Lets iOS open the app full screen from the home screen.
-  appleWebApp: { capable: true, title: 'Personal', statusBarStyle: 'black-translucent' },
+  appleWebApp: { capable: true, title: 'R.H.T', statusBarStyle: 'black-translucent' },
 };
 
 export const viewport: Viewport = {

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="The R.H.T App">
+  <title>The R.H.T App</title>
+  <defs>
+    <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e3c98a"/>
+      <stop offset="0.5" stop-color="#c8a662"/>
+      <stop offset="1" stop-color="#a98440"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="38%" r="75%">
+      <stop offset="0" stop-color="#18392f"/>
+      <stop offset="1" stop-color="#0e2620"/>
+    </radialGradient>
+  </defs>
+
+  <!-- bottle green plate -->
+  <rect width="512" height="512" rx="116" fill="url(#glow)"/>
+  <!-- fine brass frame -->
+  <rect x="26" y="26" width="460" height="460" rx="92" fill="none" stroke="#c8a662" stroke-opacity="0.38" stroke-width="2"/>
+
+  <!-- R . H . T -->
+  <g fill="none" stroke="url(#brass)" stroke-width="15" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="6">
+    <!-- R -->
+    <path d="M110 346V166H158Q196 166 196 204Q196 242 158 242H110M152 242L198 346"/>
+    <!-- H -->
+    <path d="M221 166V346M301 166V346M221 256H301"/>
+    <!-- T -->
+    <path d="M322 166H412M367 166V346"/>
+  </g>
+
+  <!-- brass diamond flourish -->
+  <g fill="url(#brass)">
+    <path d="M256 388l9 9-9 9-9-9z"/>
+  </g>
+  <g stroke="#c8a662" stroke-opacity="0.55" stroke-width="2">
+    <path d="M150 397H234M278 397H362"/>
+  </g>
+</svg>

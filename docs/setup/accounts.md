@@ -44,12 +44,12 @@ against a local PostgreSQL that lives inside the project.
 1. Sign up at resend.com.
 2. Create an API key. This is your `RESEND_API_KEY`.
 3. Choose a sender for `EMAIL_FROM`:
-   - **Without your own domain:** use `Personal <onboarding@resend.dev>`.
+   - **Without your own domain:** use `The R.H.T App <onboarding@resend.dev>`.
      Resend only delivers these to the email address you signed up with, which
      is fine for a one-person app as long as that is the address you set for
      reminders.
    - **With your own domain:** add and verify it in Resend, then use an
-     address on it, such as `Personal <reminders@yourdomain.com>`.
+     address on it, such as `The R.H.T App <reminders@yourdomain.com>`.
 
 ## 4. Web push keys
 

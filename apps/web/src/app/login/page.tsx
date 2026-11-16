@@ -10,7 +10,8 @@ export default function LoginPage() {
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-sm flex-col justify-center px-6 py-16">
       {/* The one orchestrated moment: the name rises, a rule draws, the form settles. */}
-      <Wordmark text="Personal" className="font-display text-5xl leading-none text-ivory" />
+      <img src="/icons/icon-192.png" alt="" width={72} height={72} className="mb-6 rounded-2xl" />
+      <Wordmark text="The R.H.T App" className="font-display text-4xl leading-none text-ivory" />
       <FadeUp delay={0.35}>
         <p className="mb-10 mt-4 text-sage">Your money, your habits and your files.</p>
       </FadeUp>

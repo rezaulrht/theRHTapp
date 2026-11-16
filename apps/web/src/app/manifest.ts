@@ -1,12 +1,13 @@
 import type { MetadataRoute } from 'next';
 
-// The name shown under the home-screen icon. Change it here.
-const APP_NAME = 'Personal';
+// The full name, and the shorter one shown under the home-screen icon. Change them here.
+const APP_NAME = 'The R.H.T App';
+const SHORT_NAME = 'R.H.T';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: APP_NAME,
-    short_name: APP_NAME,
+    short_name: SHORT_NAME,
     description: 'Money, habits and files in one place.',
     start_url: '/today',
     scope: '/',

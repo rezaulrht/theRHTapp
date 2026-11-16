@@ -1,4 +1,4 @@
-# Personal apps
+# The R.H.T App
 
 One person's daily-life tools: Money, Habits and Vault, in one installable web
 app. Design documents are in [docs/superpowers/specs](docs/superpowers/specs).
