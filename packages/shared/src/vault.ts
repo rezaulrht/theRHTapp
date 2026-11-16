@@ -18,6 +18,9 @@ export type FieldValue = string | number | boolean;
 export type CheckedValue = { ok: true; value: FieldValue } | { ok: false; message: string };
 
 const MAX_TEXT = 2000;
+/** http(s)://, a host with a dot in it, then anything without spaces. */
+const WEB_ADDRESS = /^https?:\/\/[^\s/?#]+\.[^\s/?#]+[^\s]*$/i;
+const LOCAL_ADDRESS = /^https?:\/\/localhost(:\d+)?(\/\S*)?$/i;
 
 function isRealDate(text: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) return false;
@@ -47,10 +50,8 @@ export function checkFieldValue(field: FieldDef, value: unknown): CheckedValue {
     case 'url': {
       if (typeof value !== 'string') return { ok: false, message: 'Enter a web address' };
       const text = value.trim();
-      try {
-        const parsed = new URL(text);
-        if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') throw new Error('not web');
-      } catch {
+      // A host after http:// or https://, and no spaces. Kept free of browser-only helpers.
+      if (!WEB_ADDRESS.test(text) && !LOCAL_ADDRESS.test(text)) {
         return { ok: false, message: 'Enter a web address starting with http:// or https://' };
       }
       return { ok: true, value: text };

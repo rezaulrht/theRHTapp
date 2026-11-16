@@ -41,6 +41,9 @@ describe('checkFieldValue', () => {
     [choice, 'Gemini'],
     [url, 'claude.ai'],
     [url, 'javascript:alert(1)'],
+    [url, 'https://'],
+    [url, 'https://claude ai/chat'],
+    [url, 'ftp://files.example.com'],
     [flag, 'yes'],
   ])('refuses a bad %s value', (field, value) => {
     const result = checkFieldValue(field, value);
