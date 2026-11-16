@@ -121,3 +121,38 @@ export type HabitDayItem = Prisma.HabitDayItemModel
  * One tap: the item was done at this instant, on this habit day.
  */
 export type HabitMark = Prisma.HabitMarkModel
+/**
+ * Model VaultFolder
+ * A folder, inside another or at the top level. Subject, chapter and topic are just folders.
+ */
+export type VaultFolder = Prisma.VaultFolderModel
+/**
+ * Model VaultItem
+ * A file, a note or a link.
+ */
+export type VaultItem = Prisma.VaultItemModel
+/**
+ * Model VaultTag
+ * 
+ */
+export type VaultTag = Prisma.VaultTagModel
+/**
+ * Model VaultItemTag
+ * 
+ */
+export type VaultItemTag = Prisma.VaultItemTagModel
+/**
+ * Model VaultField
+ * A custom field the owner defined, such as "Teacher" or "Exam date".
+ */
+export type VaultField = Prisma.VaultFieldModel
+/**
+ * Model VaultFieldValue
+ * 
+ */
+export type VaultFieldValue = Prisma.VaultFieldValueModel
+/**
+ * Model VaultTodo
+ * One line of a folder's to-do list.
+ */
+export type VaultTodo = Prisma.VaultTodoModel

@@ -285,3 +285,129 @@ model HabitMark {
 
   @@index([day, itemId])
 }
+
+// ---------------------------------------------------------------------------
+// Vault. Nothing here is fixed: folders, fields and tags are all the owner's.
+// ---------------------------------------------------------------------------
+
+/// A folder, inside another or at the top level. Subject, chapter and topic are just folders.
+model VaultFolder {
+  id          String    @id @default(cuid())
+  parentId    String?
+  parent      VaultFolder?  @relation("FolderParent", fields: [parentId], references: [id])
+  children    VaultFolder[] @relation("FolderParent")
+  name        String
+  sortOrder   Int       @default(0)
+  pinnedAt    DateTime?
+  openedAt    DateTime?
+  /// Set while in the trash.
+  trashedAt   DateTime?
+  /// The folder or item the owner deleted, which this went to the trash with.
+  trashRootId String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  items  VaultItem[]
+  todos  VaultTodo[]
+  values VaultFieldValue[]
+
+  @@index([parentId])
+  @@index([trashRootId])
+}
+
+/// A file, a note or a link.
+model VaultItem {
+  id          String       @id @default(cuid())
+  folderId    String?
+  folder      VaultFolder? @relation(fields: [folderId], references: [id])
+  /// file, note or link
+  kind        String
+  name        String
+  sortOrder   Int          @default(0)
+  /// A note's markdown.
+  body        String?
+  /// A link's address.
+  url         String?
+  /// Where a file's bytes are kept in storage. Never the file's own name.
+  fileKey     String?
+  fileSize    BigInt?
+  mimeType    String?
+  /// False until a file's upload has been confirmed.
+  uploaded    Boolean      @default(true)
+  pinnedAt    DateTime?
+  openedAt    DateTime?
+  trashedAt   DateTime?
+  trashRootId String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  tags   VaultItemTag[]
+  values VaultFieldValue[]
+
+  @@index([folderId])
+  @@index([trashRootId])
+}
+
+model VaultTag {
+  id        String         @id @default(cuid())
+  name      String         @unique
+  /// A key of CATEGORY_COLORS in @pa/shared.
+  color     String         @default("brass")
+  createdAt DateTime       @default(now())
+  items     VaultItemTag[]
+}
+
+model VaultItemTag {
+  itemId String
+  item   VaultItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  tagId  String
+  tag    VaultTag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([itemId, tagId])
+  @@index([tagId])
+}
+
+/// A custom field the owner defined, such as "Teacher" or "Exam date".
+model VaultField {
+  id         String            @id @default(cuid())
+  name       String
+  /// text, number, date, choice, url or boolean. Fixed once created.
+  type       String
+  choices    String[]
+  sortOrder  Int               @default(0)
+  archivedAt DateTime?
+  createdAt  DateTime          @default(now())
+  values     VaultFieldValue[]
+}
+
+model VaultFieldValue {
+  id       String       @id @default(cuid())
+  fieldId  String
+  field    VaultField   @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  folderId String?
+  folder   VaultFolder? @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  itemId   String?
+  item     VaultItem?   @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  value    Json
+
+  @@unique([fieldId, folderId])
+  @@unique([fieldId, itemId])
+  @@index([folderId])
+  @@index([itemId])
+}
+
+/// One line of a folder's to-do list.
+model VaultTodo {
+  id        String      @id @default(cuid())
+  folderId  String
+  folder    VaultFolder @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  text      String
+  dueDate   DateTime?   @db.Date
+  /// Send a reminder on the due date.
+  remind    Boolean     @default(false)
+  doneAt    DateTime?
+  sortOrder Int         @default(0)
+  createdAt DateTime    @default(now())
+
+  @@index([folderId])
+}

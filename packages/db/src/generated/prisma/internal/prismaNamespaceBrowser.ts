@@ -66,7 +66,14 @@ export const ModelName = {
   HabitItem: 'HabitItem',
   HabitDay: 'HabitDay',
   HabitDayItem: 'HabitDayItem',
-  HabitMark: 'HabitMark'
+  HabitMark: 'HabitMark',
+  VaultFolder: 'VaultFolder',
+  VaultItem: 'VaultItem',
+  VaultTag: 'VaultTag',
+  VaultItemTag: 'VaultItemTag',
+  VaultField: 'VaultField',
+  VaultFieldValue: 'VaultFieldValue',
+  VaultTodo: 'VaultTodo'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -304,6 +311,101 @@ export const HabitMarkScalarFieldEnum = {
 } as const
 
 export type HabitMarkScalarFieldEnum = (typeof HabitMarkScalarFieldEnum)[keyof typeof HabitMarkScalarFieldEnum]
+
+
+export const VaultFolderScalarFieldEnum = {
+  id: 'id',
+  parentId: 'parentId',
+  name: 'name',
+  sortOrder: 'sortOrder',
+  pinnedAt: 'pinnedAt',
+  openedAt: 'openedAt',
+  trashedAt: 'trashedAt',
+  trashRootId: 'trashRootId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type VaultFolderScalarFieldEnum = (typeof VaultFolderScalarFieldEnum)[keyof typeof VaultFolderScalarFieldEnum]
+
+
+export const VaultItemScalarFieldEnum = {
+  id: 'id',
+  folderId: 'folderId',
+  kind: 'kind',
+  name: 'name',
+  sortOrder: 'sortOrder',
+  body: 'body',
+  url: 'url',
+  fileKey: 'fileKey',
+  fileSize: 'fileSize',
+  mimeType: 'mimeType',
+  uploaded: 'uploaded',
+  pinnedAt: 'pinnedAt',
+  openedAt: 'openedAt',
+  trashedAt: 'trashedAt',
+  trashRootId: 'trashRootId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type VaultItemScalarFieldEnum = (typeof VaultItemScalarFieldEnum)[keyof typeof VaultItemScalarFieldEnum]
+
+
+export const VaultTagScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  color: 'color',
+  createdAt: 'createdAt'
+} as const
+
+export type VaultTagScalarFieldEnum = (typeof VaultTagScalarFieldEnum)[keyof typeof VaultTagScalarFieldEnum]
+
+
+export const VaultItemTagScalarFieldEnum = {
+  itemId: 'itemId',
+  tagId: 'tagId'
+} as const
+
+export type VaultItemTagScalarFieldEnum = (typeof VaultItemTagScalarFieldEnum)[keyof typeof VaultItemTagScalarFieldEnum]
+
+
+export const VaultFieldScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  type: 'type',
+  choices: 'choices',
+  sortOrder: 'sortOrder',
+  archivedAt: 'archivedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type VaultFieldScalarFieldEnum = (typeof VaultFieldScalarFieldEnum)[keyof typeof VaultFieldScalarFieldEnum]
+
+
+export const VaultFieldValueScalarFieldEnum = {
+  id: 'id',
+  fieldId: 'fieldId',
+  folderId: 'folderId',
+  itemId: 'itemId',
+  value: 'value'
+} as const
+
+export type VaultFieldValueScalarFieldEnum = (typeof VaultFieldValueScalarFieldEnum)[keyof typeof VaultFieldValueScalarFieldEnum]
+
+
+export const VaultTodoScalarFieldEnum = {
+  id: 'id',
+  folderId: 'folderId',
+  text: 'text',
+  dueDate: 'dueDate',
+  remind: 'remind',
+  doneAt: 'doneAt',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt'
+} as const
+
+export type VaultTodoScalarFieldEnum = (typeof VaultTodoScalarFieldEnum)[keyof typeof VaultTodoScalarFieldEnum]
 
 
 export const SortOrder = {

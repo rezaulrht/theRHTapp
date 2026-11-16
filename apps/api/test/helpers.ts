@@ -7,6 +7,13 @@ import { configureApp } from '../src/configure-app';
 import { PrismaService } from '../src/prisma/prisma.service';
 
 const TABLES = [
+  'VaultTodo',
+  'VaultFieldValue',
+  'VaultField',
+  'VaultItemTag',
+  'VaultTag',
+  'VaultItem',
+  'VaultFolder',
   'HabitMark',
   'HabitDayItem',
   'HabitDay',
