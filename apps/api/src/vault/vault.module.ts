@@ -6,8 +6,10 @@ import { FoldersController, FoldersService } from './folders';
 import { FILE_STORAGE, type FileStorage, MissingStorage } from './storage/file-storage';
 import { LocalFilesController, LocalFileStorage } from './storage/local-storage';
 import { R2Storage } from './storage/r2-storage';
+import { PlannerController, PlannerService } from './planner';
 import { SearchController, SearchService } from './search';
 import { TrashController, TrashService } from './trash';
+import { VaultExportService } from './vault-export';
 
 /** R2 when its keys are set; files on disk in development; nothing in production until then. */
 function chooseStorage(env: Env, local: LocalFileStorage): FileStorage {
@@ -23,13 +25,15 @@ function chooseStorage(env: Env, local: LocalFileStorage): FileStorage {
 }
 
 @Module({
-  controllers: [FoldersController, FilesController, FieldsController, SearchController, TrashController, LocalFilesController],
+  controllers: [FoldersController, FilesController, FieldsController, SearchController, TrashController, PlannerController, LocalFilesController],
   providers: [
     FoldersService,
     FilesService,
     FieldsService,
     SearchService,
     TrashService,
+    PlannerService,
+    VaultExportService,
     LocalFileStorage,
     { provide: FILE_STORAGE, useFactory: chooseStorage, inject: [ENV, LocalFileStorage] },
   ],
