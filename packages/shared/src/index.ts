@@ -3,3 +3,4 @@ export * from './reminder';
 export * from './schedule';
 export * from './money';
 export * from './habits';
+export * from './vault';

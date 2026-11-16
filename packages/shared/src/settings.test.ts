@@ -124,3 +124,22 @@ describe('habits settings', () => {
     if (result.ok) expect(result.value).toEqual({ ...defaultSettings, 'habits.lateShare': 0.8 });
   });
 });
+
+describe('vault settings', () => {
+  it('have valid defaults', () => {
+    expect(defaultSettings['vault.maxFileMb']).toBe(100);
+    expect(defaultSettings['vault.trashDays']).toBe(30);
+  });
+
+  it.each([
+    [{ 'vault.maxFileMb': 0 }, 'vault.maxFileMb'],
+    [{ 'vault.maxFileMb': 5001 }, 'vault.maxFileMb'],
+    [{ 'vault.maxFileMb': 1.5 }, 'vault.maxFileMb'],
+    [{ 'vault.trashDays': 0 }, 'vault.trashDays'],
+    [{ 'vault.trashDays': 366 }, 'vault.trashDays'],
+  ])('refuses %j', (patch, path) => {
+    const result = parseSettingsPatch(defaultSettings, patch);
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors[0]!.path).toBe(path);
+  });
+});

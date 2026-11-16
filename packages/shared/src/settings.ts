@@ -98,6 +98,10 @@ export const settingsSchema = z
       time: timeOfDaySchema,
       channels: z.array(channelSchema),
     }),
+    /** The largest file that can be uploaded to the Vault, in megabytes. */
+    'vault.maxFileMb': z.number('Enter a size').int('Use whole megabytes').min(1, 'Use 1 to 5000 MB').max(5000, 'Use 1 to 5000 MB'),
+    /** How long deleted things stay in the trash before they are removed for good. */
+    'vault.trashDays': z.number('Enter days').int('Use whole days').min(1, 'Use 1 to 365 days').max(365, 'Use 1 to 365 days'),
   })
   .superRefine((settings, ctx) => {
     const ids = settings['general.dayTypes'].map((d) => d.id);
@@ -151,6 +155,8 @@ export const defaultSettings: Settings = {
   'habits.warnLeadMinutes': 10,
   'habits.prayer': { method: 'Karachi', asr: 'hanafi' },
   'habits.daySummary': { enabled: false, time: '22:30', channels: ['push'] },
+  'vault.maxFileMb': 100,
+  'vault.trashDays': 30,
 };
 
 export interface SettingsError {
