@@ -15,6 +15,16 @@ describe('Wordmark', () => {
     expect([...letters].map((letter) => letter.textContent).join('')).toBe('Personal');
     expect(heading.querySelector('[aria-hidden="true"]')).not.toBeNull();
   });
+
+  it('wraps a long name between words instead of cutting it off', () => {
+    render(<Wordmark text="The R.H.T App" />);
+    const heading = screen.getByRole('heading', { name: 'The R.H.T App' });
+    const row = heading.querySelector('[aria-hidden="true"]') as HTMLElement;
+    // Every letter is still there, in order, kept together one word at a time.
+    expect([...row.children].map((word) => word.textContent)).toEqual(['The', 'R.H.T', 'App']);
+    // The row may wrap, so a narrow phone never clips the last letters.
+    expect(row.className).toContain('flex-wrap');
+  });
 });
 
 describe('Reveal', () => {
