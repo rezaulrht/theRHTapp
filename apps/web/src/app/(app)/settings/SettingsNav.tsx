@@ -4,12 +4,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { settingsSections } from './sections';
 
-/** Links between the settings pages. Scrolls sideways on a narrow phone. */
+/** Links between the settings pages. On a narrow phone they wrap onto a second line, so none are hidden. */
 export function SettingsNav() {
   const pathname = usePathname();
   return (
-    <nav aria-label="Settings" className="-mx-5 mb-8 overflow-x-auto px-5 md:mx-0 md:px-0">
-      <ul className="flex min-w-max gap-1 border-b border-hairline">
+    <nav aria-label="Settings" className="mb-8">
+      <ul className="flex flex-wrap gap-x-1 border-b border-hairline">
         {settingsSections.map((section) => {
           const active = pathname === section.href || pathname.startsWith(`${section.href}/`);
           return (

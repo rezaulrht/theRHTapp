@@ -8,9 +8,9 @@ export default function DataSettingsPage() {
     <>
       <SectionHeading>Your data</SectionHeading>
       <p className="mb-6 max-w-prose text-sage">
-        Download everything you have entered as one file. It holds your settings and reminders now, and
-        will include your money, habits and vault records as those sections are built. Passwords and
-        device keys are never included.
+        Download everything you have entered as one file. It holds your settings, reminders, money,
+        habits and Vault records. Files you uploaded to the Vault are not inside it. Passwords and device
+        keys are never included.
       </p>
       {/* A plain link, so the browser handles the download itself. */}
       <a
