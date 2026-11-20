@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { EASE_OUT } from '@/components/motion/ease';
 import { FadeUp } from '@/components/motion/Stagger';
 import { useSettings } from '@/components/SettingsProvider';
-import { Sheet } from '@/components/Sheet';
+import { Sheet, SheetPresence } from '@/components/Sheet';
 import { ApiError } from '@/lib/api';
 import { money, toPaisa, type Account, type Entry, type LoanDirection, type Person } from '@/lib/money';
 import { formatMoney, owedText, todayInZone } from '@/lib/money-text';
@@ -349,29 +349,32 @@ export function LoansView() {
         </Button>
       </form>
 
-      {recording ? (
-        <Sheet title={recording.name} onClose={() => setRecording(null)}>
-          <LoanForm
-            person={recording}
-            accounts={accounts}
-            today={today}
-            onSaved={afterChange}
-            onCancel={() => setRecording(null)}
-          />
-        </Sheet>
-      ) : null}
+      <SheetPresence>
+        {recording ? (
+          <Sheet key="record" title={recording.name} onClose={() => setRecording(null)}>
+            <LoanForm
+              person={recording}
+              accounts={accounts}
+              today={today}
+              onSaved={afterChange}
+              onCancel={() => setRecording(null)}
+            />
+          </Sheet>
+        ) : null}
 
-      {openEntry ? (
-        <EntrySheet
-          entry={openEntry}
-          accounts={accounts}
-          categories={[]}
-          symbol={symbol}
-          today={today}
-          onClose={() => setOpenEntry(null)}
-          onChanged={afterChange}
-        />
-      ) : null}
+        {openEntry ? (
+          <EntrySheet
+            key="entry"
+            entry={openEntry}
+            accounts={accounts}
+            categories={[]}
+            symbol={symbol}
+            today={today}
+            onClose={() => setOpenEntry(null)}
+            onChanged={afterChange}
+          />
+        ) : null}
+      </SheetPresence>
     </>
   );
 }

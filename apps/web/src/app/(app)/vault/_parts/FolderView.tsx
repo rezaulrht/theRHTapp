@@ -7,6 +7,7 @@ import { Reveal } from '@/components/motion/Reveal';
 import { ROOT, vault, type FolderContents, type ListQuery, type VaultField } from '@/lib/vault';
 import { Breadcrumbs } from './Breadcrumbs';
 import { EntryList, type Selection } from './EntryList';
+import { SheetPresence } from '@/components/Sheet';
 import { MoveSheet } from './MoveSheet';
 import { NameSheet } from './NameSheet';
 import { TodoList } from './TodoList';
@@ -293,68 +294,75 @@ export function FolderView({ id, before, after }: { id: string; before?: ReactNo
       {folder ? <TodoList folderId={folder.id} todos={contents.todos} onChanged={() => void load()} /> : null}
       {after?.(contents)}
 
-      {asking === 'folder' ? (
-        <NameSheet
-          title="New folder"
-          action="Make folder"
-          onClose={() => setAsking(null)}
-          onSubmit={async ({ name }) => {
-            await vault.createFolder(parentForNew, name);
-            setAsking(null);
-            void load();
-          }}
-        />
-      ) : null}
-      {asking === 'note' ? (
-        <NameSheet
-          title="New note"
-          action="Make note"
-          onClose={() => setAsking(null)}
-          onSubmit={async ({ name }) => {
-            const made = await vault.createNote(parentForNew, name);
-            router.push(`/vault/i/${made.id}?edit=1`);
-          }}
-        />
-      ) : null}
-      {asking === 'link' ? (
-        <NameSheet
-          title="New link"
-          action="Save link"
-          withUrl
-          onClose={() => setAsking(null)}
-          onSubmit={async ({ name, url }) => {
-            await vault.createLink(parentForNew, name, url);
-            setAsking(null);
-            void load();
-          }}
-        />
-      ) : null}
-      {asking === 'rename' && folder ? (
-        <NameSheet
-          title="Rename folder"
-          action="Save"
-          initialName={folder.name}
-          onClose={() => setAsking(null)}
-          onSubmit={async ({ name }) => {
-            await vault.updateFolder(folder.id, { name });
-            setAsking(null);
-            void load();
-          }}
-        />
-      ) : null}
-      {asking === 'move' ? (
-        <MoveSheet
-          selection={selection}
-          fromId={id}
-          onClose={() => setAsking(null)}
-          onMoved={() => {
-            setAsking(null);
-            setNotice({ text: `${count} moved.` });
-            stopSelecting();
-            void load();
-          }}
-        />
-      ) : null}
+      <SheetPresence>
+        {asking === 'folder' ? (
+          <NameSheet
+            key="folder"
+            title="New folder"
+            action="Make folder"
+            onClose={() => setAsking(null)}
+            onSubmit={async ({ name }) => {
+              await vault.createFolder(parentForNew, name);
+              setAsking(null);
+              void load();
+            }}
+          />
+        ) : null}
+        {asking === 'note' ? (
+          <NameSheet
+            key="note"
+            title="New note"
+            action="Make note"
+            onClose={() => setAsking(null)}
+            onSubmit={async ({ name }) => {
+              const made = await vault.createNote(parentForNew, name);
+              router.push(`/vault/i/${made.id}?edit=1`);
+            }}
+          />
+        ) : null}
+        {asking === 'link' ? (
+          <NameSheet
+            key="link"
+            title="New link"
+            action="Save link"
+            withUrl
+            onClose={() => setAsking(null)}
+            onSubmit={async ({ name, url }) => {
+              await vault.createLink(parentForNew, name, url);
+              setAsking(null);
+              void load();
+            }}
+          />
+        ) : null}
+        {asking === 'rename' && folder ? (
+          <NameSheet
+            key="rename"
+            title="Rename folder"
+            action="Save"
+            initialName={folder.name}
+            onClose={() => setAsking(null)}
+            onSubmit={async ({ name }) => {
+              await vault.updateFolder(folder.id, { name });
+              setAsking(null);
+              void load();
+            }}
+          />
+        ) : null}
+        {asking === 'move' ? (
+          <MoveSheet
+            key="move"
+            selection={selection}
+            fromId={id}
+            onClose={() => setAsking(null)}
+            onMoved={() => {
+              setAsking(null);
+              setNotice({ text: `${count} moved.` });
+              stopSelecting();
+              void load();
+            }}
+          />
+        ) : null}
+      </SheetPresence>
     </DropZone>
   );
 }

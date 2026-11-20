@@ -7,10 +7,10 @@ import { FadeUp } from '@/components/motion/Stagger';
 import { Reveal } from '@/components/motion/Reveal';
 import { ApiError } from '@/lib/api';
 import { vault, type VaultItem } from '@/lib/vault';
-import { kindText } from '@/lib/vault-text';
 import { Breadcrumbs } from './Breadcrumbs';
 import { FieldValues } from './FieldValues';
 import { FileViewer } from './FileViewer';
+import { SheetPresence } from '@/components/Sheet';
 import { MoveSheet } from './MoveSheet';
 import { NameSheet } from './NameSheet';
 import { NoteEditor } from './NoteEditor';
@@ -105,7 +105,6 @@ export function ItemView({ id }: { id: string }) {
       <Breadcrumbs path={item.path} current={false} />
       <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-sm text-sage">{kindText(item.kind)}</p>
           <h1 className="font-display text-4xl leading-tight break-words text-ivory md:text-5xl">
             <Reveal key={item.name}>{item.name}</Reveal>
           </h1>
@@ -145,29 +144,33 @@ export function ItemView({ id }: { id: string }) {
         <RemindersPanel owner={`item:${item.id}`} defaultTitle={item.name} />
       </div>
 
-      {asking === 'rename' ? (
-        <NameSheet
-          title="Rename"
-          action="Save"
-          initialName={item.name}
-          onClose={() => setAsking(null)}
-          onSubmit={async ({ name }) => {
-            keepBody(await vault.updateItem(item.id, { name }));
-            setAsking(null);
-          }}
-        />
-      ) : null}
-      {asking === 'move' ? (
-        <MoveSheet
-          selection={{ folders: [], items: [item.id] }}
-          fromId={item.folderId ?? 'root'}
-          onClose={() => setAsking(null)}
-          onMoved={async () => {
-            setAsking(null);
-            keepBody(await vault.item(item.id));
-          }}
-        />
-      ) : null}
+      <SheetPresence>
+        {asking === 'rename' ? (
+          <NameSheet
+            key="rename"
+            title="Rename"
+            action="Save"
+            initialName={item.name}
+            onClose={() => setAsking(null)}
+            onSubmit={async ({ name }) => {
+              keepBody(await vault.updateItem(item.id, { name }));
+              setAsking(null);
+            }}
+          />
+        ) : null}
+        {asking === 'move' ? (
+          <MoveSheet
+            key="move"
+            selection={{ folders: [], items: [item.id] }}
+            fromId={item.folderId ?? 'root'}
+            onClose={() => setAsking(null)}
+            onMoved={async () => {
+              setAsking(null);
+              keepBody(await vault.item(item.id));
+            }}
+          />
+        ) : null}
+      </SheetPresence>
     </>
   );
 }

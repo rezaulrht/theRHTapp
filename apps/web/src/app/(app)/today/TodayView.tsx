@@ -30,12 +30,12 @@ export function TodayView() {
       <header className="mb-10 min-h-[6.5rem]">
         {ready ? (
           <>
-            <FadeUp>
-              <p className="text-sage">{longDate(now, timeZone)}</p>
-            </FadeUp>
-            <h1 className="mt-1 font-display text-4xl leading-tight text-ivory md:text-5xl">
-              <Reveal delay={0.08}>{greetingFor(now, timeZone)}</Reveal>
+            <h1 className="font-display text-4xl leading-tight text-ivory md:text-5xl">
+              <Reveal>{greetingFor(now, timeZone)}</Reveal>
             </h1>
+            <FadeUp delay={0.18}>
+              <p className="mt-2 text-sage">{longDate(now, timeZone)}</p>
+            </FadeUp>
           </>
         ) : null}
       </header>

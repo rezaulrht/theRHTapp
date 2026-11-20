@@ -28,6 +28,7 @@ import {
   todayInZone,
 } from '@/lib/money-text';
 import { categoryDot, EntryRow } from '../EntryRow';
+import { SheetPresence } from '@/components/Sheet';
 import { EntrySheet } from '../EntrySheet';
 
 const SEARCH_DELAY_MS = 300;
@@ -355,17 +356,20 @@ export function MonthView() {
         )}
       </section>
 
-      {open ? (
-        <EntrySheet
-          entry={open}
-          accounts={accounts}
-          categories={categories}
-          symbol={symbol}
-          today={today}
-          onClose={() => setOpen(null)}
-          onChanged={afterChange}
-        />
-      ) : null}
+      <SheetPresence>
+        {open ? (
+          <EntrySheet
+            key="entry"
+            entry={open}
+            accounts={accounts}
+            categories={categories}
+            symbol={symbol}
+            today={today}
+            onClose={() => setOpen(null)}
+            onChanged={afterChange}
+          />
+        ) : null}
+      </SheetPresence>
     </>
   );
 }

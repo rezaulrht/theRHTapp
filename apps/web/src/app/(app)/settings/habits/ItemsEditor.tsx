@@ -3,7 +3,7 @@
 import { Button } from '@pa/ui';
 import { useState } from 'react';
 import { useSettings } from '@/components/SettingsProvider';
-import { Sheet } from '@/components/Sheet';
+import { Sheet, SheetPresence } from '@/components/Sheet';
 import { habits, pointsText, type AppliesTo, type HabitItem, type Timing } from '@/lib/habits';
 import { Confirm, MoveButtons, Problems, Section, moved, useAction } from '../parts';
 import { ItemForm, PRAYER_NAMES, WEEK } from './ItemForm';
@@ -150,18 +150,20 @@ export function ItemsEditor({ items, onChanged }: { items: HabitItem[]; onChange
         </Button>
       </div>
 
-      {editing ? (
-        <Sheet title={editing === 'new' ? 'New item' : editing.name} onClose={() => setEditing(null)}>
-          <ItemForm
-            item={editing === 'new' ? null : editing}
-            onCancel={() => setEditing(null)}
-            onSaved={() => {
-              setEditing(null);
-              void onChanged();
-            }}
-          />
-        </Sheet>
-      ) : null}
+      <SheetPresence>
+        {editing ? (
+          <Sheet key="item" title={editing === 'new' ? 'New item' : editing.name} onClose={() => setEditing(null)}>
+            <ItemForm
+              item={editing === 'new' ? null : editing}
+              onCancel={() => setEditing(null)}
+              onSaved={() => {
+                setEditing(null);
+                void onChanged();
+              }}
+            />
+          </Sheet>
+        ) : null}
+      </SheetPresence>
     </Section>
   );
 }

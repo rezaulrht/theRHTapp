@@ -17,6 +17,9 @@
   --font-display: var(--font-bodoni), 'Bodoni Moda', 'Didot', 'Bodoni MT', serif;
   --font-sans: var(--font-hanken), 'Hanken Grotesk', system-ui, sans-serif;
 
+  /* A stronger ease-out than the built-in one: moves off fast, settles softly. Every `ease-out` uses it. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+
   --radius-control: 0.75rem;
   --radius-panel: 1.25rem;
 
@@ -50,6 +53,18 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -webkit-tap-highlight-color: transparent;
+    /* The parts the browser draws for itself, themed so they belong to the palette. */
+    caret-color: var(--color-brass);
+    accent-color: var(--color-brass);
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--color-brass) 45%, transparent) transparent;
+  }
+
+  /* Headings break into even lines instead of leaving one word alone. */
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
   }
 
   /* One focus style everywhere: a brass ring that stands clear of the control. */

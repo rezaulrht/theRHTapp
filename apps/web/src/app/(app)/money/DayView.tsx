@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { EASE_OUT } from '@/components/motion/ease';
 import { Reveal } from '@/components/motion/Reveal';
 import { useSettings } from '@/components/SettingsProvider';
-import { Sheet } from '@/components/Sheet';
+import { Sheet, SheetPresence } from '@/components/Sheet';
 import { money, type Account, type Category, type DayReport, type Entry, type Shortcut } from '@/lib/money';
 import { addDays, dayLabel, formatMoney, todayInZone } from '@/lib/money-text';
 import { BalanceStrip } from './BalanceStrip';
@@ -237,42 +237,45 @@ export function DayView() {
 
       {/* On a phone this floats above the navigation bar, within reach of a thumb. */}
       <div className="fixed inset-x-5 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-30 md:static md:mt-8 md:flex md:justify-end">
-        <Button onClick={() => setSheet({ mode: 'add' })} className="w-full bg-ground/90 backdrop-blur md:w-auto">
+        <Button onClick={() => setSheet({ mode: 'add' })} className="w-full bg-ground md:w-auto">
           Add expense
         </Button>
       </div>
 
-      {sheet?.mode === 'add' ? (
-        <Sheet title="New entry" onClose={closeSheet}>
-          <EntryForm
+      <SheetPresence>
+        {sheet?.mode === 'add' ? (
+          <Sheet key="add" title="New entry" onClose={closeSheet}>
+            <EntryForm
+              accounts={accounts}
+              categories={categories}
+              preset={sheet.preset}
+              defaultDate={day}
+              maxDate={today}
+              onSaved={afterChange}
+              onCancel={closeSheet}
+            />
+          </Sheet>
+        ) : null}
+
+        {sheet?.mode === 'edit' ? (
+          <EntrySheet
+            key="edit"
+            entry={sheet.entry}
             accounts={accounts}
             categories={categories}
-            preset={sheet.preset}
-            defaultDate={day}
-            maxDate={today}
-            onSaved={afterChange}
-            onCancel={closeSheet}
+            symbol={symbol}
+            today={today}
+            onClose={closeSheet}
+            onChanged={afterChange}
           />
-        </Sheet>
-      ) : null}
+        ) : null}
 
-      {sheet?.mode === 'edit' ? (
-        <EntrySheet
-          entry={sheet.entry}
-          accounts={accounts}
-          categories={categories}
-          symbol={symbol}
-          today={today}
-          onClose={closeSheet}
-          onChanged={afterChange}
-        />
-      ) : null}
-
-      {sheet?.mode === 'fix' ? (
-        <Sheet title="Fix a balance" onClose={closeSheet}>
-          <FixBalanceForm accounts={accounts} symbol={symbol} date={day} onSaved={afterChange} onCancel={closeSheet} />
-        </Sheet>
-      ) : null}
+        {sheet?.mode === 'fix' ? (
+          <Sheet key="fix" title="Fix a balance" onClose={closeSheet}>
+            <FixBalanceForm accounts={accounts} symbol={symbol} date={day} onSaved={afterChange} onCancel={closeSheet} />
+          </Sheet>
+        ) : null}
+      </SheetPresence>
     </>
   );
 }

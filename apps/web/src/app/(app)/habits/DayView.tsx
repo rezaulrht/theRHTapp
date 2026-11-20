@@ -10,6 +10,7 @@ import { habits, pointsText, type DayItem, type DayReport } from '@/lib/habits';
 import { habitToday } from '@/lib/habits-text';
 import { addDays, dayLabel } from '@/lib/money-text';
 import { ItemRow } from './ItemRow';
+import { SheetPresence } from '@/components/Sheet';
 import { MarkSheet } from './MarkSheet';
 import { ScoreHeader } from './ScoreHeader';
 
@@ -271,17 +272,19 @@ export function DayView() {
         </div>
       ) : null}
 
-      {open ? (
-        <MarkSheet
-          key={open.itemId}
-          item={open}
-          day={day}
-          timeZone={timeZone}
-          dayEndHour={dayEndHour}
-          onChanged={accept}
-          onClose={() => setOpenItem(null)}
-        />
-      ) : null}
+      <SheetPresence>
+        {open ? (
+          <MarkSheet
+            key={open.itemId}
+            item={open}
+            day={day}
+            timeZone={timeZone}
+            dayEndHour={dayEndHour}
+            onChanged={accept}
+            onClose={() => setOpenItem(null)}
+          />
+        ) : null}
+      </SheetPresence>
     </>
   );
 }
