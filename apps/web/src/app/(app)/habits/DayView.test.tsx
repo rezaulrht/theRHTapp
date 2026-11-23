@@ -169,17 +169,25 @@ describe('habits DayView', () => {
     );
     renderDay();
 
-    const rows = within(await screen.findByRole('list', { name: 'Routine' })).getAllByRole('listitem');
-    expect(rows).toHaveLength(4);
-    expect(within(rows[0]!).getByText('Breakfast')).toBeInTheDocument();
-    expect(within(rows[0]!).getByText('By 8:30 am')).toBeInTheDocument();
-    expect(within(rows[0]!).getByText('On time')).toBeInTheDocument();
-    expect(within(rows[0]!).getByText('+5')).toBeInTheDocument();
-    expect(within(rows[1]!).getByText('3 of 8')).toBeInTheDocument();
-    expect(within(rows[2]!).getByText('11:00 to 11:30 am')).toBeInTheDocument();
-    expect(within(rows[2]!).getByText('Late')).toBeInTheDocument();
-    expect(within(rows[2]!).getByText('+2.5')).toBeInTheDocument();
-    expect(within(rows[3]!).getByText('Any time today')).toBeInTheDocument();
+    // The day runs as a timeline: morning first, and what can be done any time last.
+    const morning = within(await screen.findByRole('region', { name: 'Morning' })).getAllByRole('listitem');
+    expect(morning).toHaveLength(3);
+    expect(within(morning[0]!).getByText('Breakfast')).toBeInTheDocument();
+    expect(within(morning[0]!).getByText('On time')).toBeInTheDocument();
+    expect(within(morning[0]!).getByText(/at 8:20 am/)).toBeInTheDocument();
+    expect(within(morning[0]!).getByText('+5')).toBeInTheDocument();
+    expect(within(morning[1]!).getByText('3 of 8')).toBeInTheDocument();
+    expect(within(morning[2]!).getByText('Late')).toBeInTheDocument();
+    expect(within(morning[2]!).getByText('+2.5')).toBeInTheDocument();
+
+    const anyTime = within(screen.getByRole('region', { name: 'Any time today' })).getAllByRole('listitem');
+    expect(anyTime).toHaveLength(1);
+    expect(within(anyTime[0]!).getByText('Teeth')).toBeInTheDocument();
+
+    // The next thing due gets a card of its own with one button to do it.
+    const next = screen.getByRole('region', { name: 'Up next' });
+    expect(within(next).getByRole('heading', { name: 'Teeth' })).toBeInTheDocument();
+    expect(within(next).getByRole('button', { name: 'Up next: mark Teeth done' })).toBeInTheDocument();
 
     // 750 so far of 2000, with 1400 to win.
     expect(screen.getByLabelText('7.5')).toBeInTheDocument();
@@ -319,7 +327,7 @@ describe('habits DayView', () => {
     );
     mockWorld(reportOf([item({})]), past);
     renderDay();
-    await screen.findByRole('list', { name: 'Routine' });
+    await screen.findByRole('region', { name: 'Morning' });
     expect(screen.getByRole('button', { name: 'Next day' })).toBeDisabled();
 
     await userEvent.click(screen.getByRole('button', { name: 'Previous day' }));

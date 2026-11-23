@@ -7,9 +7,9 @@ import { EASE_OUT } from '@/components/motion/ease';
 import { Reveal } from '@/components/motion/Reveal';
 import { useSettings } from '@/components/SettingsProvider';
 import { habits, pointsText, type DayItem, type DayReport } from '@/lib/habits';
-import { habitToday } from '@/lib/habits-text';
+import { habitToday, windowText } from '@/lib/habits-text';
 import { addDays, dayLabel } from '@/lib/money-text';
-import { ItemRow } from './ItemRow';
+import { ItemRow, railTime } from './ItemRow';
 import { SheetPresence } from '@/components/Sheet';
 import { MarkSheet } from './MarkSheet';
 import { ScoreHeader } from './ScoreHeader';
@@ -136,17 +136,37 @@ export function DayView() {
         .sort((a, b) => b.lost - a.lost)
     : [];
 
+  // The routine runs down the day as a timeline: items with a time in the order they fall, "any time" items last.
+  const slot = (item: DayItem): number => (railTime(item, timeZone) ? new Date(item.opensAt ?? item.dueAt).getTime() : Infinity);
+  const timeline = [...report.items].sort((a, b) => slot(a) - slot(b));
+  const hourIn = (item: DayItem): number =>
+    Number(
+      new Intl.DateTimeFormat('en-GB', { hour: '2-digit', hourCycle: 'h23', timeZone }).format(new Date(item.opensAt ?? item.dueAt)),
+    );
+  const periodOf = (item: DayItem): string => {
+    if (!railTime(item, timeZone)) return 'Any time today';
+    const hour = hourIn(item);
+    return hour < 12 ? 'Morning' : hour < 17 ? 'Afternoon' : 'Evening';
+  };
+  const periods: { title: string; items: DayItem[] }[] = [];
+  for (const item of timeline) {
+    const title = periodOf(item);
+    const last = periods.at(-1);
+    if (last && last.title === title) last.items.push(item);
+    else periods.push({ title, items: [item] });
+  }
+  const nextItem =
+    !report.skipped && report.next ? report.items.find((item) => item.itemId === report.next?.itemId && item.outcome === 'pending') : undefined;
+  const allHandled = report.items.every((item) => item.outcome !== 'pending');
+
   return (
     <>
-      <header className="mb-8 flex flex-wrap items-end justify-between gap-6">
-        <div>
-          <h2 className="mb-5 font-display text-2xl text-ivory md:text-3xl">
-            <Reveal key={day}>{day === today ? 'Today' : dayLabel(day)}</Reveal>
-          </h2>
-          {report.items.length > 0 ? <ScoreHeader key={day} report={report} timeZone={timeZone} /> : null}
-        </div>
+      <header className="mb-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 md:mb-8">
+        <h2 className="font-display text-3xl text-ivory md:text-4xl">
+          <Reveal key={day}>{day === today ? 'Today' : dayLabel(day)}</Reveal>
+        </h2>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 rounded-full border border-hairline px-1">
           <button
             type="button"
             aria-label="Previous day"
@@ -169,7 +189,7 @@ export function DayView() {
               const picked = event.target.value;
               if (picked) setDay(picked > today ? today : picked);
             }}
-            className="min-h-11 rounded-full border border-hairline bg-transparent px-3 text-sm text-ivory [color-scheme:dark]"
+            className="min-h-11 bg-transparent px-2 text-sm text-ivory [color-scheme:dark]"
           />
           <button
             type="button"
@@ -206,42 +226,74 @@ export function DayView() {
       {report.items.length === 0 ? (
         <p className="border-y border-hairline py-10 text-center text-sage">Nothing on the routine for this day.</p>
       ) : (
-        <ul key={day} aria-label="Routine" className="border-t border-hairline">
-          {report.items.map((item, index) => (
-            <motion.li
-              key={item.itemId}
-              className="border-b border-hairline"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: EASE_OUT, delay: Math.min(index, 10) * 0.035 }}
-            >
-              <ItemRow
-                item={item}
-                timeZone={timeZone}
-                busy={busyItems.includes(item.itemId) || report.skipped}
-                onTick={() => void tick(item)}
-                onMore={() => setOpenItem(item.itemId)}
-              />
-            </motion.li>
-          ))}
-        </ul>
-      )}
+        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start lg:gap-10">
+          {/* First in the page so it leads on a phone; on a wide screen it stays in view beside the list. */}
+          <aside className="mb-8 lg:order-2 lg:sticky lg:top-8 lg:mb-0">
+            <ScoreHeader key={day} report={report} timeZone={timeZone} />
 
-      {losses.length > 0 ? (
-        <section className="mt-10">
-          <h3 className="mb-2 font-display text-xl text-ivory">Where the points went</h3>
-          <ul aria-label="Points lost" className="border-t border-hairline">
-            {losses.map(({ item, lost }) => (
-              <li key={item.itemId} className="flex items-baseline justify-between gap-4 border-b border-hairline py-3">
-                <span className="text-ivory">
-                  {item.name} <span className="text-sm text-sage">{item.outcome === 'missed' ? 'missed' : 'late'}</span>
-                </span>
-                <span className="font-display text-lg text-alert tabular-nums">{pointsText(-lost)}</span>
-              </li>
+            {losses.length > 0 ? (
+              <section className="mt-8">
+                <h3 className="mb-2 font-display text-xl text-ivory">Where the points went</h3>
+                <ul aria-label="Points lost" className="border-t border-hairline">
+                  {losses.map(({ item, lost }) => (
+                    <li key={item.itemId} className="flex items-baseline justify-between gap-4 border-b border-hairline py-3">
+                      <span className="text-ivory">
+                        {item.name} <span className="text-sm text-sage">{item.outcome === 'missed' ? 'missed' : 'late'}</span>
+                      </span>
+                      <span className="font-display text-lg text-alert tabular-nums">{pointsText(-lost)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
+          </aside>
+
+          <div key={day} className="flex flex-col gap-8 lg:order-1">
+            {nextItem ? (
+              <section aria-label="Up next" className="flex flex-wrap items-center justify-between gap-x-6 gap-y-4 rounded-[var(--radius-panel)] border border-brass/60 bg-brass/10 p-5 md:p-6">
+                <div className="min-w-0">
+                  <h3 className="font-display text-3xl leading-tight text-ivory md:text-4xl">{nextItem.name}</h3>
+                  <p className="mt-1 text-sage">{windowText(nextItem, timeZone)}</p>
+                </div>
+                <Button
+                  aria-label={`Up next: ${nextItem.target !== null ? `add one for ${nextItem.name}` : `mark ${nextItem.name} done`}`}
+                  loading={busyItems.includes(nextItem.itemId)}
+                  onClick={() => void tick(nextItem)}
+                >
+                  {nextItem.target !== null ? 'Add one' : 'Mark done'}
+                </Button>
+              </section>
+            ) : null}
+
+            {periods.map((section) => (
+              <section key={section.title} aria-label={section.title}>
+                <h3 className="mb-2 font-display text-xl text-ivory">{section.title}</h3>
+                <ul className="border-t border-hairline">
+                  {section.items.map((item, index) => (
+                    <motion.li
+                      key={item.itemId}
+                      className="border-b border-hairline py-1"
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, ease: EASE_OUT, delay: Math.min(index, 10) * 0.035 }}
+                    >
+                      <ItemRow
+                        item={item}
+                        timeZone={timeZone}
+                        busy={busyItems.includes(item.itemId) || report.skipped}
+                        isNext={!report.skipped && report.next?.itemId === item.itemId && item.outcome === 'pending'}
+                        onTick={() => void tick(item)}
+                        onMore={() => setOpenItem(item.itemId)}
+                      />
+                    </motion.li>
+                  ))}
+                </ul>
+              </section>
             ))}
-          </ul>
-        </section>
-      ) : null}
+            {allHandled ? <p className="text-sage">Nothing left to do for this day.</p> : null}
+          </div>
+        </div>
+      )}
 
       {report.items.length > 0 && !report.skipped ? (
         <div className="mt-8">
