@@ -38,6 +38,13 @@ const envSchema = z
     R2_ACCESS_KEY_ID: optionalText,
     R2_SECRET_ACCESS_KEY: optionalText,
     R2_BUCKET: optionalText,
+    /** Upstash Redis, a shared copy of slow reads. Put it in the same region as the server. Without it a per-server memory copy is used. */
+    UPSTASH_REDIS_REST_URL: optionalText,
+    UPSTASH_REDIS_REST_TOKEN: optionalText,
+    /** DeepSeek, for the assistant that reads a sentence into an expense. Without it the assistant is off. */
+    DEEPSEEK_API_KEY: optionalText,
+    /** Encrypts keys saved from Settings. Without it the database address is used, so keep this set if that address may change. */
+    SECRETS_KEY: optionalText,
     /** Development only: where files are kept when R2 is not set up. */
     LOCAL_FILES_DIR: optionalText,
   })
