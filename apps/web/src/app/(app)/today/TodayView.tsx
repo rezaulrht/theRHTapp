@@ -9,6 +9,7 @@ import { longDate } from '@/lib/today';
 import { Clock } from './Clock';
 import { TodayHabits } from './TodayHabits';
 import { TodayMoney } from './TodayMoney';
+import { TodayPrayers } from './TodayPrayers';
 import { TodayVault } from './TodayVault';
 
 export function TodayView() {
@@ -48,6 +49,8 @@ export function TodayView() {
           {loadError}
         </p>
       ) : null}
+
+      <TodayPrayers />
 
       <Stagger delay={0.2} className="grid gap-4 lg:grid-cols-3">
         <StaggerItem className="h-full">
