@@ -18,8 +18,7 @@ export function TodayMoney() {
 
   useEffect(() => {
     money
-      .today()
-      .then(setReport)
+      .todaySwr(setReport)
       .catch((caught: unknown) => setError(caught instanceof Error ? caught.message : 'Could not load.'));
   }, []);
 
@@ -30,8 +29,7 @@ export function TodayMoney() {
   useEffect(() => {
     if (!reportDate) return;
     money
-      .entries({ from: addDays(reportDate, -6), to: reportDate, limit: 500 })
-      .then((entries) => setWeek(dailySpend(entries, reportDate)))
+      .entriesSwr({ from: addDays(reportDate, -6), to: reportDate, limit: 500 }, (entries) => setWeek(dailySpend(entries, reportDate)))
       .catch(() => setWeek(null));
   }, [reportDate]);
 

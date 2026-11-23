@@ -363,3 +363,58 @@ describe('EntryForm', () => {
     expect(onCancel).toHaveBeenCalled();
   });
 });
+
+describe('EntryForm assistant', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('is not shown when the server has no assistant set up', async () => {
+    mockApi({
+      'GET /api/money/entries/names': noSuggestions,
+      'GET /api/ai/status': () => ({ status: 200, body: { enabled: false } }),
+    });
+    renderForm();
+    await waitFor(() => expect(fetch).toHaveBeenCalledWith('/api/ai/status', expect.anything()));
+    expect(screen.queryByLabelText('Say it in a sentence')).not.toBeInTheDocument();
+  });
+
+  it('reads a sentence into the form without saving anything', async () => {
+    const calls = mockApi({
+      'GET /api/money/entries/names': noSuggestions,
+      'GET /api/ai/status': () => ({ status: 200, body: { enabled: true } }),
+      'POST /api/ai/parse-expense': () => ({
+        status: 200,
+        body: { name: 'Lunch', amount: 25000, accountId: 'bkash', categoryId: 'food', date: '2026-11-12' },
+      }),
+    });
+    const { onSaved } = renderForm();
+
+    await userEvent.type(await screen.findByLabelText('Say it in a sentence'), 'Lunch 250 bkash{Enter}');
+
+    await screen.findByText('Filled in below. Check it, then add it.');
+    expect(screen.getByLabelText('Amount')).toHaveValue('250');
+    expect(screen.getByLabelText('What was it for?')).toHaveValue('Lunch');
+    expect(screen.getByLabelText('Paid from')).toHaveValue('bkash');
+    expect(screen.getByLabelText('Category')).toHaveValue('food');
+    expect(screen.getByLabelText('Date')).toHaveValue('2026-11-12');
+    // Enter in the sentence box read it; it did not add the entry.
+    expect(posts(calls).map((call) => call.key)).toEqual(['POST /api/ai/parse-expense']);
+    expect(posts(calls)[0]!.body).toEqual({ text: 'Lunch 250 bkash' });
+    expect(onSaved).not.toHaveBeenCalled();
+  });
+
+  it('says what went wrong and leaves the form as it was when the sentence cannot be read', async () => {
+    mockApi({
+      'GET /api/money/entries/names': noSuggestions,
+      'GET /api/ai/status': () => ({ status: 200, body: { enabled: true } }),
+      'POST /api/ai/parse-expense': () => ({ status: 422, body: { message: 'Could not find an amount in that. Try "Lunch 250".' } }),
+    });
+    renderForm();
+    await userEvent.type(await screen.findByLabelText('Say it in a sentence'), 'hello');
+    await userEvent.click(screen.getByRole('button', { name: 'Fill in' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Could not find an amount in that.');
+    expect(screen.getByLabelText('Amount')).toHaveValue('');
+  });
+});

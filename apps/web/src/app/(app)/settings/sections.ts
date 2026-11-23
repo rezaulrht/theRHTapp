@@ -12,6 +12,7 @@ export const settingsSections: SettingsSection[] = [
   { href: '/settings/money', label: 'Money' },
   { href: '/settings/habits', label: 'Habits' },
   { href: '/settings/vault', label: 'Vault' },
+  { href: '/settings/assistant', label: 'Assistant' },
   { href: '/settings/notifications', label: 'Notifications' },
   { href: '/settings/security', label: 'Security' },
   { href: '/settings/data', label: 'Data' },

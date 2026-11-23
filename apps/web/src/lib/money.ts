@@ -1,5 +1,6 @@
 import { parseAmount, type ParsedAmount } from '@pa/shared/amount';
 import { api } from './api';
+import { swr } from './cache';
 
 // Amounts cross the API as whole paisa. Only this file and the form convert.
 
@@ -150,6 +151,16 @@ const query = (params: Record<string, string | number | boolean | undefined>): s
   return text ? `?${text}` : '';
 };
 
+export type EntryFilter = {
+  date?: string;
+  from?: string;
+  to?: string;
+  accountId?: string;
+  categoryId?: string;
+  q?: string;
+  limit?: number;
+};
+
 /** Every call the Money screens make, in one place. */
 export const money = {
   accounts: (includeArchived = false) => api<Account[]>(`/money/accounts${query({ includeArchived })}`),
@@ -168,7 +179,7 @@ export const money = {
   mergeCategory: (id: string, intoId: string) =>
     api(`/money/categories/${id}/merge`, { method: 'POST', json: { intoId } }),
 
-  entries: (filter: { date?: string; from?: string; to?: string; accountId?: string; categoryId?: string; q?: string; limit?: number }) =>
+  entries: (filter: EntryFilter) =>
     api<Entry[]>(`/money/entries${query(filter)}`),
   createEntry: (body: Record<string, unknown>) => api<Entry>('/money/entries', { method: 'POST', json: body }),
   updateEntry: (id: string, body: Record<string, unknown>) =>
@@ -201,4 +212,8 @@ export const money = {
   day: (date: string) => api<DayReport>(`/money/reports/day${query({ date })}`),
   month: (month?: string) => api<MonthReport>(`/money/reports/month${query({ month })}`),
   today: () => api<TodayReport>('/money/reports/today'),
+  /** Shows the last answer at once, then the fresh one. */
+  todaySwr: (onData: (report: TodayReport) => void) => swr<TodayReport>('/money/reports/today', onData),
+  entriesSwr: (filter: EntryFilter, onData: (entries: Entry[]) => void) =>
+    swr<Entry[]>(`/money/entries${query(filter)}`, onData),
 };

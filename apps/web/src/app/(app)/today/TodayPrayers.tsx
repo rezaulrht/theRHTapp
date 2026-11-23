@@ -33,15 +33,18 @@ export function TodayPrayers() {
   useEffect(() => {
     if (!timeZone || !day) return;
     let current = true;
-    Promise.all([habits.prayerTimes(day), habits.prayerTimes(addDays(day, 1))])
-      .then(([today, tomorrow]) => {
-        if (!current) return;
-        setTimes(today);
-        setTomorrowFajr(tomorrow.fajr);
+    habits
+      .prayerTimesSwr(day, (today) => {
+        if (current) setTimes(today);
       })
       .catch(() => {
         if (current) setTimes(null);
       });
+    habits
+      .prayerTimesSwr(addDays(day, 1), (tomorrow) => {
+        if (current) setTomorrowFajr(tomorrow.fajr);
+      })
+      .catch(() => {});
     return () => {
       current = false;
     };

@@ -18,8 +18,7 @@ export function TodayHabits() {
 
   useEffect(() => {
     habits
-      .today()
-      .then(setReport)
+      .todaySwr(setReport)
       .catch((caught: unknown) => setError(caught instanceof Error ? caught.message : 'Could not load.'));
   }, []);
 
@@ -30,8 +29,7 @@ export function TodayHabits() {
   useEffect(() => {
     if (!reportDay) return;
     habits
-      .stats(addDays(reportDay, -13), reportDay)
-      .then((loaded) => setRecent(loaded.days))
+      .statsSwr(addDays(reportDay, -13), reportDay, (loaded) => setRecent(loaded.days))
       .catch(() => setRecent(null));
   }, [reportDay]);
 

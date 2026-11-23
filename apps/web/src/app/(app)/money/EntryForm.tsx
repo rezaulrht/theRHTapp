@@ -2,6 +2,7 @@
 
 import { Button, Field, Select } from '@pa/ui';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { ai } from '@/lib/ai';
 import { ApiError } from '@/lib/api';
 import {
   money,
@@ -93,6 +94,19 @@ export function EntryForm({
   const [suggestions, setSuggestions] = useState<NameSuggestion[]>([]);
   const latestLookup = useRef(0);
 
+  // The sentence box shows only when the assistant is set up on the server.
+  const [assistant, setAssistant] = useState(false);
+  const [sentence, setSentence] = useState('');
+  const [reading, setReading] = useState(false);
+  const [sentenceNote, setSentenceNote] = useState<{ text: string; problem: boolean } | null>(null);
+
+  useEffect(() => {
+    if (editing) return;
+    ai.status()
+      .then((status) => setAssistant(status.enabled))
+      .catch(() => setAssistant(false));
+  }, [editing]);
+
   // Archived accounts and categories are offered only if this entry already uses them.
   const accountOptions = accounts.filter(
     (account) => !account.archived || account.id === initial?.accountId || account.id === initial?.toAccountId,
@@ -125,6 +139,28 @@ export function EntryForm({
     }
     if (amount.trim() === '') setAmount(paisaToInput(suggestion.amount));
     setSuggestions([]);
+  }
+
+  /** Reads the sentence and fills the form from it. Nothing is saved: the person checks it and adds it. */
+  async function fillFromSentence() {
+    if (reading || sentence.trim() === '') return;
+    setReading(true);
+    setSentenceNote(null);
+    try {
+      const found = await ai.parseExpense(sentence.trim());
+      setKind('expense');
+      setAmount(paisaToInput(found.amount));
+      setName(found.name);
+      setDate(found.date > maxDate ? maxDate : found.date);
+      if (found.accountId && activeAccounts.some((account) => account.id === found.accountId)) setAccountId(found.accountId);
+      if (found.categoryId && categoryOptions.some((category) => category.id === found.categoryId)) setCategoryId(found.categoryId);
+      setErrors({});
+      setSentenceNote({ text: 'Filled in below. Check it, then add it.', problem: false });
+    } catch (error) {
+      setSentenceNote({ text: error instanceof Error ? error.message : 'Could not read that. Fill it in by hand.', problem: true });
+    } finally {
+      setReading(false);
+    }
   }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -221,6 +257,36 @@ export function EntryForm({
           </div>
         </fieldset>
       )}
+
+      {assistant && !editing ? (
+        <div>
+          <div className="flex items-end gap-2">
+            <Field
+              label="Say it in a sentence"
+              autoComplete="off"
+              placeholder="Lunch 250 bkash"
+              value={sentence}
+              onChange={(event) => setSentence(event.target.value)}
+              onKeyDown={(event) => {
+                // Enter here reads the sentence; it does not add the entry.
+                if (event.key === 'Enter') {
+                  event.preventDefault();
+                  void fillFromSentence();
+                }
+              }}
+              className="flex-1"
+            />
+            <Button variant="outline" loading={reading} onClick={() => void fillFromSentence()}>
+              Fill in
+            </Button>
+          </div>
+          {sentenceNote ? (
+            <p role={sentenceNote.problem ? 'alert' : 'status'} className={`mt-2 text-sm ${sentenceNote.problem ? 'text-alert' : 'text-brass'}`}>
+              {sentenceNote.text}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
 
       <Field
         label="Amount"

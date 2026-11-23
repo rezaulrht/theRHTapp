@@ -1,4 +1,5 @@
 import { api } from './api';
+import { swr } from './cache';
 
 export type ItemKind = 'file' | 'note' | 'link';
 export type FieldType = 'text' | 'number' | 'date' | 'choice' | 'url' | 'boolean';
@@ -213,6 +214,12 @@ export const vault = {
 
   calendar: (from: string, to: string) => api<CalendarEntry[]>(`/vault/calendar?from=${from}&to=${to}`),
   today: () => api<{ pinned: { folders: VaultFolder[]; items: VaultItem[] }; upcoming: CalendarEntry[] }>('/vault/today'),
+  /** Shows the last answer at once, then the fresh one. */
+  todaySwr: (onData: (data: { pinned: { folders: VaultFolder[]; items: VaultItem[] }; upcoming: CalendarEntry[] }) => void) =>
+    swr<{ pinned: { folders: VaultFolder[]; items: VaultItem[] }; upcoming: CalendarEntry[] }>('/vault/today', onData),
+  storageSwr: (onData: (storage: { used: number; allowance: number; files: number }) => void) =>
+    swr<{ used: number; allowance: number; files: number }>('/vault/storage', onData),
+  tagsSwr: (onData: (tags: VaultTag[]) => void) => swr<VaultTag[]>('/vault/tags', onData),
 };
 
 /**

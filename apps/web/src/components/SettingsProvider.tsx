@@ -3,6 +3,7 @@
 import type { Settings } from '@pa/shared';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { api, ApiError } from '@/lib/api';
+import { swr, writeCache } from '@/lib/cache';
 
 interface SettingsState {
   /** Null until the first load finishes. */
@@ -23,7 +24,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
   const reload = useCallback(async () => {
     try {
-      setSettings(await api<Settings>('/settings'));
+      await swr<Settings>('/settings', setSettings);
       setLoadError(null);
     } catch (error) {
       // A 401 is already on its way to the login page.
@@ -39,6 +40,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const save = useCallback(async (patch: Partial<Settings>) => {
     const next = await api<Settings>('/settings', { method: 'PATCH', json: patch });
     setSettings(next);
+    writeCache('/settings', next);
     return next;
   }, []);
 

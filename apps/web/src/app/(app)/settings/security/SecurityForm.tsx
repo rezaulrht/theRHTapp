@@ -4,6 +4,7 @@ import { Button, Field } from '@pa/ui';
 import { useRouter } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
 import { api, ApiError, type FieldError } from '@/lib/api';
+import { clearCache } from '@/lib/cache';
 import { SectionHeading } from '../SaveBar';
 
 export function SecurityForm() {
@@ -44,6 +45,7 @@ export function SecurityForm() {
     } catch {
       // Either way the owner wants to leave; the login page is the right place.
     }
+    clearCache();
     router.replace('/login');
   }
 

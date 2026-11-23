@@ -2,8 +2,9 @@
 
 import { Button, Field } from '@pa/ui';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { api, ApiError } from '@/lib/api';
+import { clearCache } from '@/lib/cache';
 import { safeNextPath } from '@/lib/route-guard';
 
 function messageFor(error: unknown): string {
@@ -23,6 +24,11 @@ export function LoginForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  // Whoever arrives here has no session: nothing kept from an earlier one stays on this device.
+  useEffect(() => {
+    clearCache();
+  }, []);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

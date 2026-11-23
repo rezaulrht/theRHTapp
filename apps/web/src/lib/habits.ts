@@ -1,4 +1,5 @@
 import { api } from './api';
+import { swr } from './cache';
 
 // Points cross the API as whole hundredths of a point. Only this file and the forms convert.
 
@@ -161,4 +162,10 @@ export const habits = {
   stats: (from: string, to: string) =>
     api<{ days: DayScore[]; items: ItemStats[] }>(`/habits/stats?from=${from}&to=${to}`),
   today: () => api<TodayHabitsReport>('/habits/today'),
+  /** Shows the last answer at once, then the fresh one. */
+  todaySwr: (onData: (report: TodayHabitsReport) => void) => swr<TodayHabitsReport>('/habits/today', onData),
+  statsSwr: (from: string, to: string, onData: (stats: { days: DayScore[]; items: ItemStats[] }) => void) =>
+    swr<{ days: DayScore[]; items: ItemStats[] }>(`/habits/stats?from=${from}&to=${to}`, onData),
+  prayerTimesSwr: (day: string, onData: (times: PrayerTimes & { day: string }) => void) =>
+    swr<PrayerTimes & { day: string }>(`/habits/prayer-times?day=${day}`, onData),
 };

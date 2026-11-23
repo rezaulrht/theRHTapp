@@ -4,6 +4,8 @@ import { afterEach, vi } from 'vitest';
 
 afterEach(() => {
   cleanup();
+  // Copies kept for fast opening must not carry from one test into the next.
+  localStorage.clear();
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
 });

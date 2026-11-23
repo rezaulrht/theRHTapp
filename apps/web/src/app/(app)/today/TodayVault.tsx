@@ -21,8 +21,7 @@ export function TodayVault() {
 
   useEffect(() => {
     vault
-      .today()
-      .then(setData)
+      .todaySwr(setData)
       .catch((caught: unknown) => setError(caught instanceof Error ? caught.message : 'Could not load.'));
   }, []);
 
@@ -31,8 +30,8 @@ export function TodayVault() {
 
   // The charts are a bonus: if they cannot load, the card simply has none.
   useEffect(() => {
-    vault.storage().then(setStorage).catch(() => setStorage(null));
-    vault.tags().then((loaded) => setTags(topTags(loaded))).catch(() => setTags([]));
+    vault.storageSwr(setStorage).catch(() => setStorage(null));
+    vault.tagsSwr((loaded) => setTags(topTags(loaded))).catch(() => setTags([]));
   }, []);
 
   const pins = data ? [...data.pinned.folders.map((folder) => ({ ...folder, kind: 'folder' as const })), ...data.pinned.items] : [];
