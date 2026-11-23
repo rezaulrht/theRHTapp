@@ -19,6 +19,8 @@ export interface AppNavProps extends HTMLAttributes<HTMLElement> {
   current: string;
   /** Link element to render, for example Next.js `Link`. Defaults to a plain anchor. */
   linkComponent?: ElementType;
+  /** Shown at the top of the side rail on wide screens. The bottom bar on phones has no room for it. */
+  brand?: ReactNode;
 }
 
 function isCurrent(current: string, href: string): boolean {
@@ -31,7 +33,7 @@ function isCurrent(current: string, href: string): boolean {
  * current.
  */
 export const AppNav = forwardRef<HTMLElement, AppNavProps>(function AppNav(
-  { items, current, linkComponent: Link = 'a', className, ...rest },
+  { items, current, linkComponent: Link = 'a', brand, className, ...rest },
   ref,
 ) {
   const activeIndex = items.findIndex((item) => isCurrent(current, item.href));
@@ -48,6 +50,7 @@ export const AppNav = forwardRef<HTMLElement, AppNavProps>(function AppNav(
       )}
       {...rest}
     >
+      {brand ? <div className="hidden px-6 pb-8 md:block">{brand}</div> : null}
       <ul className="relative flex justify-around md:flex-col md:gap-1 md:px-3">
         {activeIndex >= 0 ? (
           // One element that moves, so the change of section reads as a slide.

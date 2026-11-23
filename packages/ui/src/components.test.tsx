@@ -163,6 +163,20 @@ describe('AppNav', () => {
   });
 });
 
+describe('AppNav brand', () => {
+  const items = [{ href: '/today', label: 'Today', icon: <span>t</span> }];
+
+  it('shows the brand above the sections when one is given', () => {
+    render(<AppNav items={items} current="/today" brand={<span>The brand</span>} />);
+    expect(screen.getByText('The brand')).toBeInTheDocument();
+  });
+
+  it('shows no brand block when none is given', () => {
+    const { container } = render(<AppNav items={items} current="/today" />);
+    expect(container.querySelector('nav > div')).toBeNull();
+  });
+});
+
 describe('AppNav marker', () => {
   const items = [
     { href: '/today', label: 'Today', icon: <span>t</span> },
