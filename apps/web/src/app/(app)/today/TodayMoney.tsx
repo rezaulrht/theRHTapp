@@ -3,10 +3,12 @@
 import { Amount } from '@pa/ui';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { BarChart } from '@/components/charts/BarChart';
 import { SpotlightPanel } from '@/components/motion/SpotlightPanel';
 import { useSettings } from '@/components/SettingsProvider';
 import { money, type TodayReport } from '@/lib/money';
-import { formatMoney, todayComparisonText } from '@/lib/money-text';
+import { addDays, formatMoney, todayComparisonText } from '@/lib/money-text';
+import { dailySpend, weekdayShort } from '@/lib/today-charts';
 
 /** Money's block on the Today page: what went out today, against last week, and the balances. */
 export function TodayMoney() {
@@ -20,6 +22,18 @@ export function TodayMoney() {
       .then(setReport)
       .catch((caught: unknown) => setError(caught instanceof Error ? caught.message : 'Could not load.'));
   }, []);
+
+  const [week, setWeek] = useState<{ date: string; spent: number }[] | null>(null);
+  const reportDate = report?.date;
+
+  // The chart is a bonus: if it cannot load, the card simply has no chart.
+  useEffect(() => {
+    if (!reportDate) return;
+    money
+      .entries({ from: addDays(reportDate, -6), to: reportDate, limit: 500 })
+      .then((entries) => setWeek(dailySpend(entries, reportDate)))
+      .catch(() => setWeek(null));
+  }, [reportDate]);
 
   const symbol = settings?.['general.currency'].symbol;
   const comparison =
@@ -51,6 +65,28 @@ export function TodayMoney() {
             className="mt-2 block text-5xl leading-none text-ivory"
           />
           {comparison ? <p className="mt-2 text-sm text-brass">{comparison}</p> : null}
+
+          {week ? (
+            <div className="mt-5">
+              <BarChart
+                label="Spending, last 7 days"
+                bars={week.map((day, index) => ({
+                  key: day.date,
+                  label: weekdayShort(day.date),
+                  value: day.spent,
+                  highlight: index === week.length - 1,
+                  ariaLabel: `${weekdayShort(day.date)}: ${formatMoney(day.spent, symbol)}`,
+                }))}
+              />
+              <p className="mt-2 text-sm text-sage">
+                {formatMoney(
+                  week.reduce((sum, day) => sum + day.spent, 0),
+                  symbol,
+                )}{' '}
+                in the last 7 days
+              </p>
+            </div>
+          ) : null}
 
           <ul className="mt-5 flex flex-col gap-1.5 border-t border-hairline pt-4 text-sm">
             {report.balances.map((balance) => (

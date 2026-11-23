@@ -5,8 +5,10 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { SpotlightPanel } from '@/components/motion/SpotlightPanel';
 import { useSettings } from '@/components/SettingsProvider';
-import { fromPoints, habits, pointsText, type TodayHabitsReport } from '@/lib/habits';
+import { fromPoints, habits, pointsText, type DayScore, type TodayHabitsReport } from '@/lib/habits';
 import { dayResultText, nextText } from '@/lib/habits-text';
+import { addDays } from '@/lib/money-text';
+import { ScoreChart } from '../habits/progress/ScoreChart';
 
 /** Habits' block on the Today page: the score so far and the next thing on the routine. */
 export function TodayHabits() {
@@ -20,6 +22,18 @@ export function TodayHabits() {
       .then(setReport)
       .catch((caught: unknown) => setError(caught instanceof Error ? caught.message : 'Could not load.'));
   }, []);
+
+  const [recent, setRecent] = useState<DayScore[] | null>(null);
+  const reportDay = report?.day;
+
+  // The chart is a bonus: if it cannot load, the card simply has no chart.
+  useEffect(() => {
+    if (!reportDay) return;
+    habits
+      .stats(addDays(reportDay, -13), reportDay)
+      .then((loaded) => setRecent(loaded.days))
+      .catch(() => setRecent(null));
+  }, [reportDay]);
 
   const timeZone = settings?.['general.timezone'];
   const result = report ? dayResultText({ ...report, closed: false }) : '';
@@ -50,6 +64,15 @@ export function TodayHabits() {
               <span className="text-sm text-sage">of {pointsText(report.possible)}</span>
             </p>
             {result ? <p className="mt-2 text-sm text-brass">{result}</p> : null}
+
+            {recent && recent.length > 0 ? (
+              <div className="mt-5">
+                <ScoreChart days={recent} height={64} />
+                <p className="mt-2 text-sm text-sage">
+                  Last 14 days · {recent.filter((day) => day.won === true).length} won
+                </p>
+              </div>
+            ) : null}
 
             <ul className="mt-5 flex flex-col gap-1.5 border-t border-hairline pt-4 text-sm">
               <li className="flex justify-between gap-4">

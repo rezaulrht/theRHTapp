@@ -2,11 +2,14 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { MeterRow } from '@/components/charts/MeterRow';
 import { SpotlightPanel } from '@/components/motion/SpotlightPanel';
 import { useSettings } from '@/components/SettingsProvider';
 import { timeText } from '@/lib/habits-text';
 import { dayLabel } from '@/lib/money-text';
-import { vault, type CalendarEntry, type VaultFolder, type VaultItem } from '@/lib/vault';
+import { topTags } from '@/lib/today-charts';
+import { vault, type CalendarEntry, type VaultFolder, type VaultItem, type VaultTag } from '@/lib/vault';
+import { sizeText } from '@/lib/vault-text';
 import { KindIcon } from '../vault/_parts/KindIcon';
 
 /** The Vault's block on the Today page: pinned folders and items, and what is coming up this week. */
@@ -21,6 +24,15 @@ export function TodayVault() {
       .today()
       .then(setData)
       .catch((caught: unknown) => setError(caught instanceof Error ? caught.message : 'Could not load.'));
+  }, []);
+
+  const [storage, setStorage] = useState<{ used: number; allowance: number; files: number } | null>(null);
+  const [tags, setTags] = useState<VaultTag[]>([]);
+
+  // The charts are a bonus: if they cannot load, the card simply has none.
+  useEffect(() => {
+    vault.storage().then(setStorage).catch(() => setStorage(null));
+    vault.tags().then((loaded) => setTags(topTags(loaded))).catch(() => setTags([]));
   }, []);
 
   const pins = data ? [...data.pinned.folders.map((folder) => ({ ...folder, kind: 'folder' as const })), ...data.pinned.items] : [];
@@ -78,6 +90,28 @@ export function TodayVault() {
               ))}
             </ul>
           )}
+
+          {storage || tags.length > 0 ? (
+            <ul aria-label="Vault in numbers" className="mt-5 flex flex-col gap-4 border-t border-hairline pt-4">
+              {storage ? (
+                <MeterRow
+                  name="Storage used"
+                  text={`${sizeText(storage.used)} of ${sizeText(storage.allowance)}`}
+                  value={storage.used}
+                  max={storage.allowance}
+                />
+              ) : null}
+              {tags.map((tag) => (
+                <MeterRow
+                  key={tag.id}
+                  name={tag.name}
+                  text={`${tag.count} ${tag.count === 1 ? 'thing' : 'things'}`}
+                  value={tag.count}
+                  max={tags[0]?.count ?? tag.count}
+                />
+              ))}
+            </ul>
+          ) : null}
         </>
       ) : error ? null : (
         <p className="mt-4 text-sm text-sage">Opening the Vault…</p>

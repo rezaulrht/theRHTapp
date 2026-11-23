@@ -13,12 +13,12 @@ const HEIGHT = 160;
  * a day won, coral for a day lost, an outline for a skipped day. The line
  * across each bar is that day's target. Each bar opens its day.
  */
-export function ScoreChart({ days }: { days: DayScore[] }) {
+export function ScoreChart({ days, height = HEIGHT }: { days: DayScore[]; height?: number }) {
   return (
     <ul
       aria-label="Daily scores"
       className="flex items-end gap-1.5 border-b border-hairline"
-      style={{ height: HEIGHT }}
+      style={{ height }}
       data-lenis-prevent
     >
       {days.map((day, index) => {
