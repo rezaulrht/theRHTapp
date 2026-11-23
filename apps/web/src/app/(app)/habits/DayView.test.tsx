@@ -271,7 +271,7 @@ describe('habits DayView', () => {
     renderDay();
     await userEvent.click(await screen.findByRole('button', { name: 'Skip this day' }));
     expect(count(world, `PUT /api/habits/days/${today}/skip`)).toBe(0);
-    await userEvent.type(screen.getByLabelText('Reason, if you like'), 'Fever');
+    await userEvent.type(screen.getByLabelText('Reason (optional)'), 'Fever');
     await userEvent.click(screen.getByRole('button', { name: 'Yes, skip it' }));
 
     expect(await screen.findByText('Day skipped: Fever')).toBeInTheDocument();

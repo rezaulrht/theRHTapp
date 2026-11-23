@@ -116,7 +116,7 @@ export function DayView() {
         {error}
       </p>
     ) : (
-      <p className="text-sage">Opening your notebook…</p>
+      <p className="text-sage">Opening your money…</p>
     );
   }
 

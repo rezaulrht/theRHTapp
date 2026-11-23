@@ -5,7 +5,8 @@ import { InstallGuide } from '@/components/InstallGuide';
 import { Reveal } from '@/components/motion/Reveal';
 import { FadeUp, Stagger, StaggerItem } from '@/components/motion/Stagger';
 import { useSettings } from '@/components/SettingsProvider';
-import { greetingFor, longDate } from '@/lib/today';
+import { longDate } from '@/lib/today';
+import { Clock } from './Clock';
 import { TodayHabits } from './TodayHabits';
 import { TodayMoney } from './TodayMoney';
 import { TodayVault } from './TodayVault';
@@ -26,15 +27,15 @@ export function TodayView() {
 
   return (
     <>
-      {/* Height is reserved so nothing below jumps when the greeting arrives. */}
-      <header className="mb-10 min-h-[6.5rem]">
+      {/* Height is reserved so nothing below jumps when the date arrives. */}
+      <header className="mb-10 min-h-[11rem] md:flex md:min-h-[4.5rem] md:items-end md:justify-between md:gap-8">
         {ready ? (
           <>
             <h1 className="font-display text-4xl leading-tight text-ivory md:text-5xl">
-              <Reveal>{greetingFor(now, timeZone)}</Reveal>
+              <Reveal>{longDate(now, timeZone)}</Reveal>
             </h1>
-            <FadeUp delay={0.18}>
-              <p className="mt-2 text-sage">{longDate(now, timeZone)}</p>
+            <FadeUp delay={0.2} className="mt-5 md:mt-0">
+              <Clock timeZone={timeZone} />
             </FadeUp>
           </>
         ) : null}

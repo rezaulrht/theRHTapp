@@ -65,7 +65,7 @@ export function FixBalanceForm({
         ))}
       </Select>
       <Field
-        label="What is really there"
+        label="Actual balance"
         inputMode="decimal"
         autoComplete="off"
         autoFocus

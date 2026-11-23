@@ -250,7 +250,7 @@ export function DayView() {
               <p className="text-sm text-ivory">Skip this whole day? Nothing is scored and no reminders are sent.</p>
               <Field
                 className="mt-3"
-                label="Reason, if you like"
+                label="Reason (optional)"
                 autoComplete="off"
                 value={reason}
                 onChange={(event) => setReason(event.target.value)}
