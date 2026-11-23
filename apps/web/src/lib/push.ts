@@ -69,6 +69,26 @@ export async function enablePush(): Promise<void> {
   await api('/push/subscriptions', { method: 'POST', json: subscription.toJSON() });
 }
 
+/**
+ * Quietly tells the server about this device again, if it is subscribed. The
+ * phone decides for itself that it is subscribed, so if its first registration
+ * never reached the server (or the server lost it) the page would say "on"
+ * while nothing could ever be sent. The server treats a repeat as an update.
+ * Returns whether a registration was sent; it never throws.
+ */
+export async function syncPush(): Promise<boolean> {
+  try {
+    if ((await pushState()) !== 'subscribed') return false;
+    const registration = await navigator.serviceWorker.getRegistration();
+    const subscription = await registration?.pushManager.getSubscription();
+    if (!subscription) return false;
+    await api('/push/subscriptions', { method: 'POST', json: subscription.toJSON() });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** Turns notifications off for this device only. */
 export async function disablePush(): Promise<void> {
   const registration = await navigator.serviceWorker.getRegistration();

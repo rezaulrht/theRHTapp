@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { HabitsIcon, MoneyIcon, SettingsIcon, TodayIcon, VaultIcon } from './icons';
+import { PushSync } from './PushSync';
 import { SettingsProvider } from './SettingsProvider';
 import { SmoothScroll } from './SmoothScroll';
 
@@ -21,6 +22,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   return (
     <SettingsProvider>
+      <PushSync />
       <SmoothScroll>
         <AppNav items={sections} current={pathname} linkComponent={Link} />
         {/* Leave room for the bottom bar on phones and the side rail on wide screens. */}

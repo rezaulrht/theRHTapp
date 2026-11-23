@@ -1,4 +1,4 @@
-import { disablePush, enablePush, isIos, pushState, urlBase64ToUint8Array } from './push';
+import { disablePush, enablePush, isIos, pushState, syncPush, urlBase64ToUint8Array } from './push';
 
 const IPHONE =
   'Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1';
@@ -171,6 +171,51 @@ describe('disablePush', () => {
     const calls = mockFetch();
     await disablePush();
     expect(calls).toHaveLength(0);
+  });
+});
+
+describe('syncPush', () => {
+  it('tells the server about this device again when it is subscribed', async () => {
+    setEnv({ permission: 'granted', subscription: fakeSubscription });
+    const calls = mockFetch();
+    expect(await syncPush()).toBe(true);
+    expect(calls).toHaveLength(1);
+    expect(calls[0]!.key).toBe('POST /api/push/subscriptions');
+    expect(calls[0]!.body).toEqual({
+      endpoint: 'https://push.example.test/device-1',
+      keys: { p256dh: 'p', auth: 'a' },
+    });
+  });
+
+  it('does nothing when this device has no subscription', async () => {
+    setEnv({ permission: 'granted', subscription: null });
+    const calls = mockFetch();
+    expect(await syncPush()).toBe(false);
+    expect(calls).toHaveLength(0);
+  });
+
+  it('does nothing when notifications are blocked or not asked for yet', async () => {
+    for (const permission of ['denied', 'default'] as const) {
+      setEnv({ permission, subscription: fakeSubscription });
+      const calls = mockFetch();
+      expect(await syncPush()).toBe(false);
+      expect(calls).toHaveLength(0);
+    }
+  });
+
+  it('does nothing in a browser without push, or an iPhone tab that is not installed', async () => {
+    setEnv({ push: false });
+    expect(await syncPush()).toBe(false);
+    setEnv({ userAgent: IPHONE, standalone: false, permission: 'granted', subscription: fakeSubscription });
+    const calls = mockFetch();
+    expect(await syncPush()).toBe(false);
+    expect(calls).toHaveLength(0);
+  });
+
+  it('never throws when the server cannot be reached', async () => {
+    setEnv({ permission: 'granted', subscription: fakeSubscription });
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
+    await expect(syncPush()).resolves.toBe(false);
   });
 });
 
