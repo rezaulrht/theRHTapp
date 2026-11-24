@@ -1,6 +1,8 @@
 import { Body, Controller, Get, HttpCode, Post, UnprocessableEntityException } from '@nestjs/common';
 import { z } from 'zod';
 import { daySchema } from '../habits/common';
+import { ActionsService, type ActionResult } from './actions.service';
+import { actionMessages, actionSchema, MAX_ACTIONS, type ProposedAction, resolveActions } from './actions';
 import { ReminderEngineService } from '../reminders/reminder-engine.service';
 import { AccountsService } from '../money/accounts.service';
 import { CategoriesService } from '../money/categories.service';
@@ -34,10 +36,12 @@ const textSchema = z.object({ text: text(600) });
 const askSchema = z.object({ text: text(600), scope: z.enum(['money', 'habits', 'all']).optional() });
 const daySummarySchema = z.object({ day: daySchema.optional() });
 const routineSchema = z.object({ description: text(800) });
+const actSchema = z.object({ actions: z.array(actionSchema).min(1, 'Nothing to do').max(MAX_ACTIONS, 'That is too many at once') });
 const reminderSchema = z.object({ title: text(200), at: z.iso.datetime({ offset: true }) });
 
 export type AskAnswer =
   | { type: 'answer'; text: string }
+  | { type: 'actions'; actions: ProposedAction[]; notes: string[] }
   | { type: 'expense'; items: ParsedExpense[] }
   | { type: 'reminder'; title: string; at: string; whenText: string };
 
@@ -51,6 +55,7 @@ export class AiFeaturesController {
     private readonly categories: CategoriesService,
     private readonly engine: ReminderEngineService,
     private readonly weekly: WeeklyReviewService,
+    private readonly actions: ActionsService,
   ) {}
 
   private async lists() {
@@ -110,6 +115,23 @@ export class AiFeaturesController {
       return { type: 'answer', text: 'I could not work out when. Try "remind me to pay rent on 5 December at 9am".' };
     }
 
+    if (intent.type === 'action') {
+      const context = await this.actions.context();
+      const reply = await this.ai.json(
+        actionMessages(
+          body.text,
+          { habits: context.habitItems.map((item) => item.name), accounts: context.accounts.map((account) => account.name), categories: context.categories.map((category) => category.name) },
+          today,
+          nowLocal,
+          timeZone,
+        ),
+        { maxTokens: 800 },
+      );
+      const { actions, notes } = resolveActions(reply, context);
+      if (actions.length > 0) return { type: 'actions', actions, notes };
+      return { type: 'answer', text: notes[0] ?? 'I could not find anything I can change for that. I can tick or skip habits, pause them, add expenses or income, move an expense to another category, set budgets, and set reminders.' };
+    }
+
     if (intent.type === 'expense') {
       const { accounts, categories } = await this.lists();
       const reply = await this.ai.json(bulkMessages(body.text, accounts.map((a) => a.name), categories.map((c) => c.name), today), { maxTokens: 900 });
@@ -121,6 +143,13 @@ export class AiFeaturesController {
     if (scope !== 'habits') parts.push(`MONEY\n${await this.snapshots.money()}`);
     if (scope !== 'money') parts.push(`HABITS\n${await this.snapshots.habits()}`);
     return { type: 'answer', text: await this.ai.text(answerMessages(body.text, parts.join('\n\n'), today, symbol), { maxTokens: 400 }) };
+  }
+
+  /** Does the actions the person just confirmed. Each one is checked again here and reports its own result. */
+  @Post('act')
+  @HttpCode(200)
+  async act(@Body(new ZodValidationPipe(actSchema)) body: z.infer<typeof actSchema>): Promise<{ results: ActionResult[] }> {
+    return { results: await this.actions.run(body.actions) };
   }
 
   /** Creates the reminder the person just confirmed from the ask box. */

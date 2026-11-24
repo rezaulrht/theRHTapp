@@ -33,6 +33,10 @@ function mockApi(enabled: boolean, ask: () => { status: number; body: unknown })
       if (key === 'GET /api/money/categories') return json(categories);
       if (key === 'POST /api/money/entries') return json({ id: 'e1' }, 201);
       if (key === 'POST /api/ai/create-reminder') return json({ id: 'r1' }, 201);
+      if (key === 'POST /api/ai/act') {
+        const sent = (init?.body ? JSON.parse(init.body as string) : { actions: [] }) as { actions: { label?: string }[] };
+        return json({ results: sent.actions.map((action, index) => (index === 1 ? { ok: false, message: 'Ghost: That item is not on the routine' } : { ok: true, message: `Marked ${action.label} as done` })) });
+      }
       throw new Error(`Unexpected request: ${key}`);
     }),
   );
@@ -132,5 +136,59 @@ describe('AskBox', () => {
     renderBox();
     await userEvent.type(await screen.findByLabelText('Ask'), 'hello{Enter}');
     expect(await screen.findByRole('alert')).toHaveTextContent('The assistant could not be reached.');
+  });
+
+  const proposal = {
+    type: 'actions',
+    actions: [
+      { summary: 'Mark Gym as done today', payload: { type: 'mark_habit_done', itemId: 'h1', day: '2026-11-23', label: 'Gym' } },
+      { summary: 'Skip Ghost today', payload: { type: 'skip_habit', itemId: 'h9', day: '2026-11-23', label: 'Ghost' } },
+      { summary: 'Pause Reading', payload: { type: 'pause_habit', itemId: 'h3', label: 'Reading' } },
+    ],
+    notes: ['There is no habit called "Swimming" on your routine.'],
+  };
+
+  it('shows proposed changes with everything ticked, and does nothing until confirmed', async () => {
+    const calls = mockApi(true, () => ({ status: 200, body: proposal }));
+    renderBox();
+    await userEvent.type(await screen.findByLabelText('Ask'), 'mark gym done{Enter}');
+
+    const list = await screen.findByRole('list', { name: 'Changes to make' });
+    expect(within(list).getAllByRole('checkbox').every((box) => (box as HTMLInputElement).checked)).toBe(true);
+    expect(screen.getByRole('list', { name: 'Left out' })).toHaveTextContent('Swimming');
+    expect(screen.getByRole('button', { name: 'Do 3 things' })).toBeInTheDocument();
+    expect(calls.some((call) => call.key === 'POST /api/ai/act')).toBe(false);
+  });
+
+  it('sends only the ticked changes, exactly as proposed, and shows what worked and what did not', async () => {
+    const calls = mockApi(true, () => ({ status: 200, body: proposal }));
+    const changed = vi.fn();
+    renderBox({ onAdded: changed });
+    await userEvent.type(await screen.findByLabelText('Ask'), 'do things{Enter}');
+    await userEvent.click(await screen.findByRole('checkbox', { name: 'Pause Reading' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Do 2 things' }));
+
+    const done = await screen.findByRole('list', { name: 'What was done' });
+    expect(within(done).getByText(/Marked Gym as done/)).toBeInTheDocument();
+    expect(within(done).getByText(/Ghost: That item is not on the routine/)).toBeInTheDocument();
+    expect(calls.find((call) => call.key === 'POST /api/ai/act')?.body).toEqual({ actions: [proposal.actions[0]!.payload, proposal.actions[1]!.payload] });
+    expect(changed).toHaveBeenCalled();
+  });
+
+  it('leaves everything alone when cancelled', async () => {
+    const calls = mockApi(true, () => ({ status: 200, body: proposal }));
+    renderBox();
+    await userEvent.type(await screen.findByLabelText('Ask'), 'do things{Enter}');
+    await userEvent.click(await screen.findByRole('button', { name: 'Cancel' }));
+    expect(screen.queryByRole('list', { name: 'Changes to make' })).not.toBeInTheDocument();
+    expect(calls.some((call) => call.key === 'POST /api/ai/act')).toBe(false);
+  });
+
+  it('cannot be run with nothing ticked', async () => {
+    mockApi(true, () => ({ status: 200, body: { ...proposal, actions: [proposal.actions[0]!] } }));
+    renderBox();
+    await userEvent.type(await screen.findByLabelText('Ask'), 'gym{Enter}');
+    await userEvent.click(await screen.findByRole('checkbox', { name: 'Mark Gym as done today' }));
+    expect(screen.getByRole('button', { name: 'Do 0 things' })).toBeDisabled();
   });
 });

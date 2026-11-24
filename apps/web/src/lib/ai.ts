@@ -19,9 +19,21 @@ export interface AssistantStatus {
   hint: string | null;
 }
 
-/** What the ask box got back: an answer, expenses to confirm, or a reminder to confirm. */
+/** One thing the assistant proposes to do. The payload is sent back untouched when the person confirms. */
+export interface ProposedAction {
+  summary: string;
+  payload: Record<string, unknown>;
+}
+
+export interface ActionResult {
+  ok: boolean;
+  message: string;
+}
+
+/** What the ask box got back: an answer, changes to confirm, expenses to confirm, or a reminder to confirm. */
 export type AskAnswer =
   | { type: 'answer'; text: string }
+  | { type: 'actions'; actions: ProposedAction[]; notes: string[] }
   | { type: 'expense'; items: ParsedExpense[] }
   | { type: 'reminder'; title: string; at: string; whenText: string };
 
@@ -48,6 +60,7 @@ export const ai = {
   budgetAdvice: () => api<{ text: string }>('/ai/budget-advice'),
 
   ask: (text: string, scope?: 'money' | 'habits' | 'all') => api<AskAnswer>('/ai/ask', { method: 'POST', json: scope ? { text, scope } : { text } }),
+  act: (actions: ProposedAction['payload'][]) => api<{ results: ActionResult[] }>('/ai/act', { method: 'POST', json: { actions } }),
   createReminder: (title: string, at: string) => api<{ id: string }>('/ai/create-reminder', { method: 'POST', json: { title, at } }),
 
   habitCoach: () => api<{ text: string }>('/ai/habit-coach', { method: 'POST' }),

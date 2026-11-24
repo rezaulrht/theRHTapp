@@ -54,15 +54,16 @@ export function readBulk(reply: unknown, accounts: Named[], categories: Named[],
 
 // ------------------------------------------------------------------- the ask box
 
-export type Intent = { type: 'question' } | { type: 'expense' } | { type: 'reminder'; title: string; when: string };
+export type Intent = { type: 'question' } | { type: 'expense' } | { type: 'action' } | { type: 'reminder'; title: string; when: string };
 
 export function routerMessages(text: string, nowLocal: string, timeZone: string): ChatMessage[] {
   return [
     system([
       'You sort one message typed into a personal money, habits and reminders app. Reply with JSON only.',
-      'Shape: {"type": "question"|"expense"|"reminder", "title": string|null, "when": string|null}.',
+      'Shape: {"type": "question"|"expense"|"action"|"reminder", "title": string|null, "when": string|null}.',
       'question: asks about the person\'s own spending or habits ("how much did I spend on food", "which habit do I miss").',
       'expense: says something was bought or spent ("lunch 250", "tea 20, rickshaw 60").',
+      'action: asks to change something that exists: tick or skip a habit ("mark gym done"), pause a habit, move an expense to another category, set or remove a budget, add income, or add several things at once.',
       'reminder: asks to be reminded of something at a time ("remind me to pay rent on the 5th at 9am").',
       `For a reminder: title is what to be reminded of, and when is the local time as YYYY-MM-DDTHH:mm in ${timeZone}.`,
       'If no time of day is given, use 09:00. If the day is not clear, use null for when.',
@@ -82,7 +83,7 @@ export function localToInstant(when: string, timeZone: string, now: Date): strin
 
 export function readIntent(reply: unknown): Intent {
   const parsed = z
-    .object({ type: z.enum(['question', 'expense', 'reminder']), title: z.string().nullable().optional(), when: z.string().nullable().optional() })
+    .object({ type: z.enum(['question', 'expense', 'action', 'reminder']), title: z.string().nullable().optional(), when: z.string().nullable().optional() })
     .safeParse(reply);
   if (!parsed.success) return { type: 'question' };
   const { type, title, when } = parsed.data;

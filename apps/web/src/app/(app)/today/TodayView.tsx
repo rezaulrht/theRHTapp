@@ -17,6 +17,8 @@ export function TodayView() {
   const { settings, loadError } = useSettings();
   // The clock is read after mount so the server and the phone agree on the first paint.
   const [now, setNow] = useState<Date | null>(null);
+  /** Bumped when the assistant has changed something, so the cards below show it. */
+  const [refresh, setRefresh] = useState(0);
 
   useEffect(() => {
     setNow(new Date());
@@ -51,11 +53,11 @@ export function TodayView() {
         </p>
       ) : null}
 
-      <AskBox />
+      <AskBox onAdded={() => setRefresh((count) => count + 1)} />
 
       <TodayPrayers />
 
-      <Stagger delay={0.2} className="grid gap-4 lg:grid-cols-3">
+      <Stagger key={refresh} delay={0.2} className="grid gap-4 lg:grid-cols-3">
         <StaggerItem className="h-full">
           <TodayMoney />
         </StaggerItem>

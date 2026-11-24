@@ -2,7 +2,7 @@
 
 import { Button, Field } from '@pa/ui';
 import { useEffect, useState, type FormEvent } from 'react';
-import { ai, type AskAnswer, type ParsedExpense } from '@/lib/ai';
+import { ai, type ActionResult, type AskAnswer, type ParsedExpense, type ProposedAction } from '@/lib/ai';
 import { money, type Account, type Category } from '@/lib/money';
 import { formatMoney } from '@/lib/money-text';
 import { useSettings } from './SettingsProvider';
@@ -112,6 +112,79 @@ export function ExpensePreview({
   );
 }
 
+/** Changes the assistant proposes, each with a tick. Nothing happens until the button is pressed. */
+export function ActionPreview({
+  actions,
+  notes,
+  onDone,
+  onCancel,
+}: {
+  actions: ProposedAction[];
+  notes: string[];
+  onDone(results: ActionResult[]): void;
+  onCancel(): void;
+}) {
+  const [kept, setKept] = useState(actions.map(() => true));
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const count = kept.filter(Boolean).length;
+
+  async function run() {
+    if (busy || count === 0) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const { results } = await ai.act(actions.filter((_, index) => kept[index]).map((action) => action.payload));
+      onDone(results);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Could not do that. Try again.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="rounded-[var(--radius-control)] border border-hairline p-4">
+      <p className="text-sm text-sage">I will do this once you confirm. Untick anything you do not want.</p>
+      <ul aria-label="Changes to make" className="mt-3 divide-y divide-hairline">
+        {actions.map((action, index) => (
+          <li key={`${action.summary}-${index}`}>
+            <label className="flex min-h-11 cursor-pointer items-center gap-3 py-2">
+              <input
+                type="checkbox"
+                checked={kept[index] ?? false}
+                onChange={() => setKept(kept.map((value, position) => (position === index ? !value : value)))}
+                className="size-5 shrink-0"
+              />
+              <span className="text-ivory">{action.summary}</span>
+            </label>
+          </li>
+        ))}
+      </ul>
+      {notes.length > 0 ? (
+        <ul aria-label="Left out" className="mt-3 space-y-1 text-sm text-sage">
+          {notes.map((note) => (
+            <li key={note}>{note}</li>
+          ))}
+        </ul>
+      ) : null}
+      {error ? (
+        <p role="alert" className="mt-3 text-sm text-alert">
+          {error}
+        </p>
+      ) : null}
+      <div className="mt-4 flex items-center gap-3">
+        <Button onClick={() => void run()} loading={busy} disabled={count === 0}>
+          {`Do ${count} ${count === 1 ? 'thing' : 'things'}`}
+        </Button>
+        <Button variant="quiet" onClick={onCancel}>
+          Cancel
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 /**
  * One box for questions about money and habits, spending typed in, and
  * reminders to set. It says which it understood and asks before it changes
@@ -132,6 +205,7 @@ export function AskBox({
   const [answer, setAnswer] = useState<AskAnswer | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [results, setResults] = useState<ActionResult[] | null>(null);
 
   if (!enabled) return null;
 
@@ -141,6 +215,7 @@ export function AskBox({
     setBusy(true);
     setError(null);
     setNotice(null);
+    setResults(null);
     setAnswer(null);
     try {
       setAnswer(await ai.ask(text.trim(), scope));
@@ -202,6 +277,34 @@ export function AskBox({
         <p role="status" className="mt-4 max-w-prose whitespace-pre-line rounded-[var(--radius-control)] border border-hairline p-4 text-ivory">
           {answer.text}
         </p>
+      ) : null}
+
+      {answer?.type === 'actions' ? (
+        <div className="mt-4">
+          <ActionPreview
+            actions={answer.actions}
+            notes={answer.notes}
+            onCancel={() => setAnswer(null)}
+            onDone={(done) => {
+              setAnswer(null);
+              setText('');
+              setResults(done);
+              onAdded?.();
+            }}
+          />
+        </div>
+      ) : null}
+
+      {results ? (
+        <ul aria-label="What was done" className="mt-4 space-y-1 text-sm">
+          {results.map((result, index) => (
+            <li key={`${result.message}-${index}`} className={result.ok ? 'text-brass' : 'text-alert'}>
+              <span className="sr-only">{result.ok ? 'Done: ' : 'Failed: '}</span>
+              <span aria-hidden="true">{result.ok ? '✓ ' : '✗ '}</span>
+              {result.message}
+            </li>
+          ))}
+        </ul>
       ) : null}
 
       {answer?.type === 'expense' ? (
