@@ -2,6 +2,9 @@
 
 import { motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
+import { AiNote } from '@/components/AiNote';
+import { useAssistant } from '@/components/useAssistant';
+import { ai } from '@/lib/ai';
 import { EASE_OUT } from '@/components/motion/ease';
 import { Reveal } from '@/components/motion/Reveal';
 import { useSettings } from '@/components/SettingsProvider';
@@ -37,6 +40,7 @@ export function ProgressView() {
   const dayEndHour = settings?.['habits.dayEndHour'];
   const today = timeZone !== undefined && dayEndHour !== undefined ? habitToday(timeZone, dayEndHour) : null;
 
+  const assistant = useAssistant();
   const [span, setSpan] = useState<Span>('week');
   const [anchor, setAnchor] = useState<string | null>(null);
   const [data, setData] = useState<{ key: string; days: DayScore[]; items: ItemStats[] } | null>(null);
@@ -127,6 +131,8 @@ export function ProgressView() {
           </button>
         </div>
       </header>
+
+      {assistant ? <AiNote className="mb-8" label="Find patterns" busyLabel="Looking at your days…" load={() => ai.habitCoach()} /> : null}
 
       {error ? (
         <p role="alert" className="mb-4 text-sm text-alert">

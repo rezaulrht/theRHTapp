@@ -5,7 +5,10 @@ import { motion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { EASE_OUT } from '@/components/motion/ease';
 import { Reveal } from '@/components/motion/Reveal';
+import { AiNote } from '@/components/AiNote';
 import { useSettings } from '@/components/SettingsProvider';
+import { useAssistant } from '@/components/useAssistant';
+import { ai } from '@/lib/ai';
 import { habits, pointsText, type DayItem, type DayReport } from '@/lib/habits';
 import { habitToday, windowText } from '@/lib/habits-text';
 import { addDays, dayLabel } from '@/lib/money-text';
@@ -17,6 +20,7 @@ import { ScoreHeader } from './ScoreHeader';
 /** The routine for one habit day: the score, what is next, and every item to tick. */
 export function DayView() {
   const { settings } = useSettings();
+  const assistant = useAssistant();
   const timeZone = settings?.['general.timezone'];
   const dayEndHour = settings?.['habits.dayEndHour'];
   const today = timeZone !== undefined && dayEndHour !== undefined ? habitToday(timeZone, dayEndHour) : null;
@@ -294,6 +298,10 @@ export function DayView() {
           </div>
         </div>
       )}
+
+      {assistant && report.items.length > 0 && !report.skipped ? (
+        <AiNote className="mt-8" label="Summarise this day" load={() => ai.daySummary(day)} />
+      ) : null}
 
       {report.items.length > 0 && !report.skipped ? (
         <div className="mt-8">

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { ai, type AssistantStatus } from '@/lib/ai';
 import { ApiError } from '@/lib/api';
 import { SectionHeading } from '../SaveBar';
+import { WeeklyReviewSettings } from './WeeklyReviewSettings';
 
 function describe(status: AssistantStatus): string {
   if (status.source === 'settings') return `A key is saved here, ending in ${status.hint}. The assistant is on.`;
@@ -108,6 +109,7 @@ export function AssistantSettings() {
           </p>
         ) : null}
       </form>
+      {status?.enabled ? <WeeklyReviewSettings /> : null}
     </div>
   );
 }

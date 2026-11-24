@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { AskBox } from '@/components/AskBox';
 import { InstallGuide } from '@/components/InstallGuide';
 import { Reveal } from '@/components/motion/Reveal';
 import { FadeUp, Stagger, StaggerItem } from '@/components/motion/Stagger';
@@ -49,6 +50,8 @@ export function TodayView() {
           {loadError}
         </p>
       ) : null}
+
+      <AskBox />
 
       <TodayPrayers />
 

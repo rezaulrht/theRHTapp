@@ -418,3 +418,66 @@ describe('EntryForm assistant', () => {
     expect(screen.getByLabelText('Amount')).toHaveValue('');
   });
 });
+
+describe('EntryForm category follows the name', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  const history = [{ name: 'Tea', accountId: 'cash', categoryId: 'food', amount: 2000 }];
+
+  it('takes the category from past entries for a name used before, without asking the assistant', async () => {
+    const calls = mockApi({
+      'GET /api/money/entries/names': () => ({ status: 200, body: history }),
+      'GET /api/ai/status': () => ({ status: 200, body: { enabled: true, source: 'settings', hint: 'abcd' } }),
+    });
+    renderForm();
+    expect(screen.getByLabelText('Category')).toHaveValue('travel');
+
+    await userEvent.type(screen.getByLabelText('What was it for?'), 'tea');
+
+    await waitFor(() => expect(screen.getByLabelText('Category')).toHaveValue('food'));
+    expect(screen.getByText('Category taken from your past entries.')).toBeInTheDocument();
+    expect(calls.some((call) => call.key === 'POST /api/ai/suggest-category')).toBe(false);
+  });
+
+  it('asks the assistant only for a name with no history, and only after the person stops typing', async () => {
+    const calls = mockApi({
+      'GET /api/money/entries/names': noSuggestions,
+      'GET /api/ai/status': () => ({ status: 200, body: { enabled: true, source: 'settings', hint: 'abcd' } }),
+      'POST /api/ai/suggest-category': () => ({ status: 200, body: { categoryId: 'food' } }),
+    });
+    renderForm();
+    await screen.findByLabelText('Say it in a sentence');
+    await userEvent.type(screen.getByLabelText('What was it for?'), 'pharmacy');
+
+    await waitFor(() => expect(screen.getByLabelText('Category')).toHaveValue('food'), { timeout: 3000 });
+    expect(screen.getByText('Category suggested by the assistant.')).toBeInTheDocument();
+    expect(calls.filter((call) => call.key === 'POST /api/ai/suggest-category')).toHaveLength(1);
+    expect(calls.find((call) => call.key === 'POST /api/ai/suggest-category')?.body).toEqual({ name: 'pharmacy' });
+  });
+
+  it('never changes a category the person has chosen themselves', async () => {
+    mockApi({
+      'GET /api/money/entries/names': () => ({ status: 200, body: history }),
+      'GET /api/ai/status': () => ({ status: 200, body: { enabled: false, source: null, hint: null } }),
+    });
+    renderForm();
+    await userEvent.selectOptions(screen.getByLabelText('Category'), 'travel');
+    await userEvent.type(screen.getByLabelText('What was it for?'), 'tea');
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    expect(screen.getByLabelText('Category')).toHaveValue('travel');
+    expect(screen.queryByText('Category taken from your past entries.')).not.toBeInTheDocument();
+  });
+
+  it('does not ask the assistant when it is not set up', async () => {
+    const calls = mockApi({
+      'GET /api/money/entries/names': noSuggestions,
+      'GET /api/ai/status': () => ({ status: 200, body: { enabled: false, source: null, hint: null } }),
+    });
+    renderForm();
+    await userEvent.type(screen.getByLabelText('What was it for?'), 'pharmacy');
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    expect(calls.some((call) => call.key === 'POST /api/ai/suggest-category')).toBe(false);
+  });
+});

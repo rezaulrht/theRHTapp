@@ -92,6 +92,11 @@ export function EntryForm({
   const [formError, setFormError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [suggestions, setSuggestions] = useState<NameSuggestion[]>([]);
+  /** What the past entries say about the name as typed, so the category can follow it without another request. */
+  const [history, setHistory] = useState<{ name: string; list: NameSuggestion[] } | null>(null);
+  const [categoryNote, setCategoryNote] = useState<string | null>(null);
+  /** Once the person has chosen a category themselves, nothing changes it behind their back. */
+  const categoryChosen = useRef(initial !== undefined || preset !== undefined);
   const latestLookup = useRef(0);
 
   // The sentence box shows only when the assistant is set up on the server.
@@ -126,16 +131,57 @@ export function EntryForm({
       .names(name.trim())
       .then((found) => {
         // Ignore an answer that a newer keystroke has overtaken.
-        if (lookup === latestLookup.current) setSuggestions(found.filter((item) => item.name !== name));
+        if (lookup === latestLookup.current) {
+          setSuggestions(found.filter((item) => item.name !== name));
+          setHistory({ name: name.trim(), list: found });
+        }
       })
       .catch(() => {});
   }, [kind, name, initial?.name, preset?.name]);
+
+  // The category follows the name. The person's own history answers first (free and instant);
+  // the assistant is asked only for a name that has never been used.
+  useEffect(() => {
+    if (editing || kind !== 'expense' || categoryChosen.current) return;
+    const typed = name.trim();
+    if (typed.length < 2 || history?.name !== typed) return;
+
+    const lower = typed.toLowerCase();
+    const known = (suggestion: NameSuggestion) => suggestion.categoryId !== null && categoryOptions.some((category) => category.id === suggestion.categoryId);
+    const match =
+      history.list.find((item) => item.name.toLowerCase() === lower && known(item)) ??
+      history.list.find((item) => (item.name.toLowerCase().includes(lower) || lower.includes(item.name.toLowerCase())) && known(item));
+    if (match?.categoryId) {
+      setCategoryId(match.categoryId);
+      setCategoryNote('Category taken from your past entries.');
+      return;
+    }
+    if (!assistant || typed.length < 3) return;
+
+    let current = true;
+    const timer = setTimeout(() => {
+      ai.suggestCategory(typed)
+        .then(({ categoryId: suggested }) => {
+          if (!current || categoryChosen.current || !suggested || !categoryOptions.some((category) => category.id === suggested)) return;
+          setCategoryId(suggested);
+          setCategoryNote('Category suggested by the assistant.');
+        })
+        .catch(() => {});
+    }, 700);
+    return () => {
+      current = false;
+      clearTimeout(timer);
+    };
+    // The category options are not a trigger: they only decide whether a suggestion fits.
+  }, [history, name, kind, editing, assistant]);
 
   function pick(suggestion: NameSuggestion) {
     setName(suggestion.name);
     if (activeAccounts.some((account) => account.id === suggestion.accountId)) setAccountId(suggestion.accountId);
     if (suggestion.categoryId && categoryOptions.some((category) => category.id === suggestion.categoryId)) {
       setCategoryId(suggestion.categoryId);
+      categoryChosen.current = true;
+      setCategoryNote(null);
     }
     if (amount.trim() === '') setAmount(paisaToInput(suggestion.amount));
     setSuggestions([]);
@@ -153,7 +199,11 @@ export function EntryForm({
       setName(found.name);
       setDate(found.date > maxDate ? maxDate : found.date);
       if (found.accountId && activeAccounts.some((account) => account.id === found.accountId)) setAccountId(found.accountId);
-      if (found.categoryId && categoryOptions.some((category) => category.id === found.categoryId)) setCategoryId(found.categoryId);
+      if (found.categoryId && categoryOptions.some((category) => category.id === found.categoryId)) {
+        setCategoryId(found.categoryId);
+        categoryChosen.current = true;
+        setCategoryNote(null);
+      }
       setErrors({});
       setSentenceNote({ text: 'Filled in below. Check it, then add it.', problem: false });
     } catch (error) {
@@ -359,7 +409,11 @@ export function EntryForm({
               <Select
                 label="Category"
                 value={categoryId}
-                onChange={(event) => setCategoryId(event.target.value)}
+                onChange={(event) => {
+                  categoryChosen.current = true;
+                  setCategoryNote(null);
+                  setCategoryId(event.target.value);
+                }}
                 error={errors.categoryId}
               >
                 {categoryOptions.map((category) => (
@@ -370,6 +424,11 @@ export function EntryForm({
               </Select>
             ) : null}
           </div>
+          {categoryNote ? (
+            <p role="status" className="-mt-2 text-sm text-sage">
+              {categoryNote}
+            </p>
+          ) : null}
         </>
       )}
 

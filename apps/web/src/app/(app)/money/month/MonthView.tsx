@@ -3,9 +3,12 @@
 import { Amount, Field, Select } from '@pa/ui';
 import { motion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { AiNote } from '@/components/AiNote';
 import { EASE_OUT } from '@/components/motion/ease';
 import { Reveal } from '@/components/motion/Reveal';
 import { useSettings } from '@/components/SettingsProvider';
+import { useAssistant } from '@/components/useAssistant';
+import { ai } from '@/lib/ai';
 import {
   money,
   type Account,
@@ -108,6 +111,7 @@ function CategoryRow({
 /** The month-end page of the notebook: where the money went, against the month before. */
 export function MonthView() {
   const { settings } = useSettings();
+  const assistant = useAssistant();
   const timeZone = settings?.['general.timezone'];
   const symbol = settings?.['general.currency'].symbol ?? '';
   const today = timeZone ? todayInZone(timeZone) : null;
@@ -252,6 +256,8 @@ export function MonthView() {
           </button>
         </div>
       </header>
+
+      {assistant ? <AiNote className="mb-10 -mt-4" label="Budget advice" load={() => ai.budgetAdvice()} /> : null}
 
       {error ? (
         <p role="alert" className="mb-4 text-sm text-alert">

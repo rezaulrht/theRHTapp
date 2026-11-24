@@ -3,13 +3,16 @@
 import { Amount, Button } from '@pa/ui';
 import { motion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { AskBox } from '@/components/AskBox';
 import { EASE_OUT } from '@/components/motion/ease';
 import { Reveal } from '@/components/motion/Reveal';
 import { useSettings } from '@/components/SettingsProvider';
+import { useAssistant } from '@/components/useAssistant';
 import { Sheet, SheetPresence } from '@/components/Sheet';
 import { money, type Account, type Category, type DayReport, type Entry, type Shortcut } from '@/lib/money';
 import { addDays, dayLabel, formatMoney, todayInZone } from '@/lib/money-text';
 import { BalanceStrip } from './BalanceStrip';
+import { BulkAddSheet } from './BulkAddSheet';
 import { EntryForm } from './EntryForm';
 import { EntryRow } from './EntryRow';
 import { EntrySheet } from './EntrySheet';
@@ -21,7 +24,8 @@ const SHORTCUT_COOLDOWN_MS = 1000;
 type SheetState =
   | { mode: 'add'; preset?: { name: string; amount: number; accountId: string; categoryId: string } }
   | { mode: 'edit'; entry: Entry }
-  | { mode: 'fix' };
+  | { mode: 'fix' }
+  | { mode: 'bulk' };
 
 /** The notebook page for one day: balances, shortcuts, the day's total and its entries. */
 export function DayView() {
@@ -38,6 +42,7 @@ export function DayView() {
   const [error, setError] = useState<string | null>(null);
   const [sheet, setSheet] = useState<SheetState | null>(null);
   const [busyShortcut, setBusyShortcut] = useState<string | null>(null);
+  const assistant = useAssistant();
   const usingShortcut = useRef(false);
   const lastShortcut = useRef<{ id: string; at: number } | null>(null);
   const latestLoad = useRef(0);
@@ -147,6 +152,8 @@ export function DayView() {
         />
       ) : null}
 
+      <AskBox scope="money" placeholder="How much did I spend on food this month?" />
+
       <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <h2 className="font-display text-2xl text-ivory md:text-3xl">
@@ -237,6 +244,11 @@ export function DayView() {
 
       {/* On a phone this floats above the navigation bar, within reach of a thumb. */}
       <div className="fixed inset-x-5 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-30 md:static md:mt-8 md:flex md:justify-end">
+        {assistant ? (
+          <Button variant="outline" onClick={() => setSheet({ mode: 'bulk' })} className="mb-2 w-full bg-ground md:mb-0 md:mr-3 md:w-auto">
+            Add several
+          </Button>
+        ) : null}
         <Button onClick={() => setSheet({ mode: 'add' })} className="w-full bg-ground md:w-auto">
           Add expense
         </Button>
@@ -269,6 +281,8 @@ export function DayView() {
             onChanged={afterChange}
           />
         ) : null}
+
+        {sheet?.mode === 'bulk' ? <BulkAddSheet key="bulk" onClose={closeSheet} onAdded={afterChange} /> : null}
 
         {sheet?.mode === 'fix' ? (
           <Sheet key="fix" title="Fix a balance" onClose={closeSheet}>

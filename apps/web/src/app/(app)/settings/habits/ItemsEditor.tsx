@@ -3,10 +3,12 @@
 import { Button } from '@pa/ui';
 import { useState } from 'react';
 import { useSettings } from '@/components/SettingsProvider';
+import { useAssistant } from '@/components/useAssistant';
 import { Sheet, SheetPresence } from '@/components/Sheet';
 import { habits, pointsText, type AppliesTo, type HabitItem, type Timing } from '@/lib/habits';
 import { Confirm, MoveButtons, Problems, Section, moved, useAction } from '../parts';
 import { ItemForm, PRAYER_NAMES, WEEK } from './ItemForm';
+import { RoutineBuilder } from './RoutineBuilder';
 
 export function timingSummary(timing: Timing): string {
   if (timing.kind === 'fixed') {
@@ -113,6 +115,8 @@ export function ItemsEditor({ items, onChanged }: { items: HabitItem[]; onChange
   const dayTypes = settings?.['general.dayTypes'] ?? [];
   const dayTypeName = (id: string) => dayTypes.find((dayType) => dayType.id === id)?.name ?? id;
   const [editing, setEditing] = useState<HabitItem | 'new' | null>(null);
+  const [building, setBuilding] = useState(false);
+  const assistant = useAssistant();
   const reorder = useAction();
 
   async function move(index: number, by: -1 | 1) {
@@ -144,13 +148,28 @@ export function ItemsEditor({ items, onChanged }: { items: HabitItem[]; onChange
       )}
       <Problems list={reorder.problems([])} />
 
-      <div className="mt-6">
+      <div className="mt-6 flex flex-wrap gap-3">
         <Button variant="outline" onClick={() => setEditing('new')}>
           Add an item
         </Button>
+        {assistant ? (
+          <Button variant="outline" onClick={() => setBuilding(true)}>
+            Build with the assistant
+          </Button>
+        ) : null}
       </div>
 
       <SheetPresence>
+        {building ? (
+          <RoutineBuilder
+            key="builder"
+            onClose={() => setBuilding(false)}
+            onAdded={() => {
+              setBuilding(false);
+              void onChanged();
+            }}
+          />
+        ) : null}
         {editing ? (
           <Sheet key="item" title={editing === 'new' ? 'New item' : editing.name} onClose={() => setEditing(null)}>
             <ItemForm
