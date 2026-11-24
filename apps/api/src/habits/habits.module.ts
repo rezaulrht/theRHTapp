@@ -11,7 +11,7 @@ import { StatsController, StatsService } from './stats';
 @Module({
   controllers: [ItemsController, DaysController, StatsController],
   providers: [ItemsService, DaysService, StatsService, HabitsExportService, HabitRemindersService],
-  exports: [ItemsService, DaysService],
+  exports: [ItemsService, DaysService, StatsService],
 })
 export class HabitsModule implements OnModuleInit {
   constructor(

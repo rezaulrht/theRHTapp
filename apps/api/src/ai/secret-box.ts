@@ -34,3 +34,8 @@ export function isSealed(value: unknown): value is Sealed {
   const record = value as Record<string, unknown>;
   return typeof record.iv === 'string' && typeof record.tag === 'string' && typeof record.data === 'string';
 }
+
+/** What encrypts saved secrets: SECRETS_KEY if set, otherwise the database address. */
+export function secretOf(env: { SECRETS_KEY?: string; DATABASE_URL: string }): string {
+  return env.SECRETS_KEY ?? env.DATABASE_URL;
+}

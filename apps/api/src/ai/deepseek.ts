@@ -5,15 +5,19 @@ const MODEL = 'deepseek-chat';
 
 export class AssistantError extends Error {}
 
-/**
- * Sends the messages to DeepSeek and returns the JSON object it answered with.
- * Throws AssistantError when the service fails, is slow, or does not answer with JSON.
- */
-export async function askDeepSeek(
+export interface AskOptions {
+  /** The most the answer may run to. A short cap keeps each call cheap. */
+  maxTokens?: number;
+}
+
+/** Sends the messages and returns the text the model wrote. Throws AssistantError when the service fails or is slow. */
+async function complete(
   apiKey: string,
   messages: ChatMessage[],
-  send: typeof fetch = fetch,
-): Promise<unknown> {
+  json: boolean,
+  send: typeof fetch,
+  { maxTokens = 200 }: AskOptions,
+): Promise<string> {
   let response: Response;
   try {
     response = await send(ENDPOINT, {
@@ -22,11 +26,11 @@ export async function askDeepSeek(
       body: JSON.stringify({
         model: MODEL,
         messages,
-        response_format: { type: 'json_object' },
-        temperature: 0,
-        max_tokens: 200,
+        ...(json ? { response_format: { type: 'json_object' } } : {}),
+        temperature: json ? 0 : 0.3,
+        max_tokens: maxTokens,
       }),
-      signal: AbortSignal.timeout(15_000),
+      signal: AbortSignal.timeout(json ? 15_000 : 30_000),
     });
   } catch {
     throw new AssistantError('The assistant did not answer in time');
@@ -36,9 +40,34 @@ export async function askDeepSeek(
   try {
     const body = (await response.json()) as { choices?: { message?: { content?: string } }[] };
     const content = body.choices?.[0]?.message?.content;
-    if (typeof content !== 'string') throw new Error('empty');
+    if (typeof content !== 'string' || content.trim() === '') throw new Error('empty');
+    return content;
+  } catch {
+    throw new AssistantError('The assistant sent back something unreadable');
+  }
+}
+
+/** Asks for a JSON object and returns it parsed. */
+export async function askDeepSeek(
+  apiKey: string,
+  messages: ChatMessage[],
+  send: typeof fetch = fetch,
+  options: AskOptions = {},
+): Promise<unknown> {
+  const content = await complete(apiKey, messages, true, send, options);
+  try {
     return JSON.parse(content);
   } catch {
     throw new AssistantError('The assistant sent back something unreadable');
   }
+}
+
+/** Asks for plain text, for answers that are read by a person. */
+export async function askDeepSeekText(
+  apiKey: string,
+  messages: ChatMessage[],
+  send: typeof fetch = fetch,
+  options: AskOptions = { maxTokens: 500 },
+): Promise<string> {
+  return (await complete(apiKey, messages, false, send, options)).trim();
 }

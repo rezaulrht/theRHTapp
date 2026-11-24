@@ -30,6 +30,13 @@ export class R2Storage implements FileStorage {
     });
   }
 
+  /** Proves the keys work by writing and removing a tiny object. Throws with the reason when they do not. */
+  async check(): Promise<void> {
+    const key = `.checks/${Date.now()}`;
+    await this.client.send(new PutObjectCommand({ Bucket: this.bucket, Key: key, Body: 'ok', ContentType: 'text/plain' }));
+    await this.client.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: key }));
+  }
+
   async uploadUrl(key: string, mimeType: string, size: number) {
     const command = new PutObjectCommand({ Bucket: this.bucket, Key: key, ContentType: mimeType, ContentLength: size });
     const url = await getSignedUrl(this.client, command, { expiresIn: UPLOAD_SECONDS });

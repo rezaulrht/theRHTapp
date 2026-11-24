@@ -98,6 +98,14 @@ export const settingsSchema = z
       time: timeOfDaySchema,
       channels: z.array(channelSchema),
     }),
+    /** A short weekly note on spending and habits, written by the assistant. Needs the assistant key. */
+    'ai.weeklyReview': z.object({
+      enabled: z.boolean(),
+      /** 0 is Sunday to 6 is Saturday. */
+      day: z.number().int().min(0).max(6),
+      time: timeOfDaySchema,
+      channels: z.array(channelSchema),
+    }),
     /** The largest file that can be uploaded to the Vault, in megabytes. */
     'vault.maxFileMb': z.number('Enter a size').int('Use whole megabytes').min(1, 'Use 1 to 5000 MB').max(5000, 'Use 1 to 5000 MB'),
     /** How long deleted things stay in the trash before they are removed for good. */
@@ -155,6 +163,7 @@ export const defaultSettings: Settings = {
   'habits.warnLeadMinutes': 10,
   'habits.prayer': { method: 'Karachi', asr: 'hanafi' },
   'habits.daySummary': { enabled: false, time: '22:30', channels: ['push'] },
+  'ai.weeklyReview': { enabled: false, day: 0, time: '20:00', channels: ['push'] },
   'vault.maxFileMb': 100,
   'vault.trashDays': 30,
 };

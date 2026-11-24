@@ -53,7 +53,7 @@ export function buildMessages(text: string, accounts: string[], categories: stri
 const norm = (value: string): string => value.trim().toLowerCase();
 
 /** The one whose name the model gave, tolerating a different case or a name inside the other. */
-function findByName(list: Named[], wanted: string | null | undefined): string | null {
+export function findByName(list: Named[], wanted: string | null | undefined): string | null {
   if (!wanted || norm(wanted) === '') return null;
   const target = norm(wanted);
   const exact = list.find((item) => norm(item.name) === target);

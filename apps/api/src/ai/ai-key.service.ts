@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import type { Prisma } from '@pa/db';
 import { ENV, type Env } from '../env';
 import { PrismaService } from '../prisma/prisma.service';
-import { isSealed, seal, unseal } from './secret-box';
+import { isSealed, seal, secretOf, unseal } from './secret-box';
 
 /** The settings table row that holds the key. It is not one of the settings the app lists, so it is never sent to the browser. */
 const ROW = 'secret.deepseek';
@@ -28,7 +28,7 @@ export class AiKeyService {
 
   /** What encrypts the key. Set SECRETS_KEY to keep a saved key working if the database address ever changes. */
   private get secret(): string {
-    return this.env.SECRETS_KEY ?? this.env.DATABASE_URL;
+    return secretOf(this.env);
   }
 
   /** The saved key, read from the database at most once every few minutes. */

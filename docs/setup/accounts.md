@@ -189,9 +189,14 @@ files are kept in `.localfiles/` instead, so nothing here is needed to try it.
    ```
 
    Use the exact address of your Vercel site, with no slash at the end.
-4. In Heroku, add the four config vars below (`R2_ACCOUNT_ID`,
-   `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`). The app restarts
-   and uploads start working.
+4. Give the app the four details, either way:
+   - **In the app (easiest):** open **Settings → Storage**, paste the Account ID,
+     access key ID, secret access key and bucket name, and press **Test and
+     save**. The keys are tried against the bucket first, then stored encrypted.
+     Uploads start working at once, with no restart.
+   - **In Heroku:** add the four config vars below (`R2_ACCOUNT_ID`,
+     `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`). The app restarts
+     and uploads start working. Keys saved in Settings win over these.
 
 The free allowance is 10 GB of storage; Settings → Vault shows how much is used.
 

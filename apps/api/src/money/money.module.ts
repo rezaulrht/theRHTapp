@@ -38,7 +38,7 @@ import { ShortcutsController, ShortcutsService } from './shortcuts';
     MoneyRemindersService,
     MoneyExportService,
   ],
-  exports: [AccountsService, CategoriesService, EntriesService, BudgetsService, LoansService],
+  exports: [AccountsService, CategoriesService, EntriesService, BudgetsService, LoansService, ReportsService],
 })
 export class MoneyModule implements OnModuleInit {
   constructor(
